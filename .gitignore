@@ -1,0 +1,27 @@
+# Ignore MongoDB runtime files
+infrastructure/mongo-cluster/mongo/**/WiredTiger*
+infrastructure/mongo-cluster/mongo/**/mongod.lock
+infrastructure/mongo-cluster/mongo/**/journal/
+infrastructure/mongo-cluster/mongo/**/*.wt
+infrastructure/mongo-cluster/mongo/**/diagnostic.data/
+# === Java/Spring Boot ===
+target/
+*.jar
+*.war
+
+# === Docker/Infra ===
+*.log
+.env
+docker-compose.override.yml
+
+# === MinIO data ===
+infrastructure/MinIO/data/
+
+# === IDEs ===
+.vscode/
+.idea/
+*.iml
+
+# === OS system files ===
+.DS_Store
+Thumbs.db

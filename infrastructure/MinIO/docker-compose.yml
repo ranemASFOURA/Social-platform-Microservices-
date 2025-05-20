@@ -5,11 +5,11 @@ services:
     image: minio/minio
     container_name: minio
     ports:
-      - "9000:9000" # API
-      - "9001:9001" # Console UI
+      - "9102:9000" # API
+      - "9101:9001" # Console UI
     environment:
       MINIO_ROOT_USER: admin
       MINIO_ROOT_PASSWORD: admin123
     volumes:
-      - "/d/Fifth year/My-Project/photo-sharing-platform:/data"
+      - "./minio-data:/data"
     command: server /data --console-address ":9001"

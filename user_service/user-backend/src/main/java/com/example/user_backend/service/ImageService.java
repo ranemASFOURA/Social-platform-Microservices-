@@ -45,6 +45,6 @@ public class ImageService {
     }
 
     public String buildFileUrl(String objectName) {
-        return "http://localhost:9000/" + BUCKET_NAME + "/" + objectName;
+        return "http://localhost:9102/" + BUCKET_NAME + "/" + objectName;
     }
 }

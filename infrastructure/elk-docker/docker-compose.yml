@@ -1,4 +1,4 @@
-version: '3.7'
+version: '3.8'
 services:
   elasticsearch:
     image: elasticsearch:8.11.3
@@ -7,6 +7,8 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - network.host=0.0.0.0
     ports:
       - "9200:9200"
     volumes:
