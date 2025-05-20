@@ -29,7 +29,7 @@ public class SearchBackendApplication {
 
 		return new DefaultKafkaConsumerFactory<>(
 				Map.of(
-						ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "192.168.181.128:9092",
+						ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092",
 						ConsumerConfig.GROUP_ID_CONFIG, "search-service-group",
 						ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
 						ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, deserializer),
