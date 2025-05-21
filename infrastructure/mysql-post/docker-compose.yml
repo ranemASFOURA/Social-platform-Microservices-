@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  mysql-post:
+    image: mysql:8
+    container_name: mysql-post
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: post_db
+      MYSQL_USER: post_user
+      MYSQL_PASSWORD: post_pass
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+    networks:
+      - post-network
+
+networks:
+  post-network:

@@ -4,10 +4,38 @@ infrastructure/mongo-cluster/mongo/**/mongod.lock
 infrastructure/mongo-cluster/mongo/**/journal/
 infrastructure/mongo-cluster/mongo/**/*.wt
 infrastructure/mongo-cluster/mongo/**/diagnostic.data/
+
 # === Java/Spring Boot ===
-target/
+/target/
+*.class
 *.jar
 *.war
+*.log
+*.iml
+/.idea/
+/*.iws
+/.project
+/.classpath
+
+# IntelliJ IDEA
+*.ipr
+*.iws
+*.bak
+.idea/
+*.tmp
+
+# Maven
+/logs/
+/.mvn/
+!**/src/main/**/application.properties
+!**/src/main/**/application.yml
+**/application-*.yml
+**/application-*.properties
+
+# Local environment
+.env
+*.db
+*.sqlite
 
 # === Docker/Infra ===
 *.log
@@ -25,3 +53,21 @@ infrastructure/MinIO/data/
 # === OS system files ===
 .DS_Store
 Thumbs.db
+
+# ===== OS-specific =====
+*.swp
+*.swo
+
+# Ignore MySQL data volumes
+infrastructure/**/data/
+infrastructure/**/logs/
+
+# Ignore Docker volumes and MySQL runtime files
+infrastructure/**/data/
+infrastructure/**/logs/
+*.sock
+*.pid
+*.cnf
+*.ibd
+*.ib_logfile*
+
