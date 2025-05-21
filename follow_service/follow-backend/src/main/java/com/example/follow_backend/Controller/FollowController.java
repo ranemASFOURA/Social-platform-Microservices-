@@ -3,6 +3,7 @@ package com.example.follow_backend.Controller;
 import com.example.follow_backend.model.*;
 import com.example.follow_backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,4 +38,11 @@ public class FollowController {
     public List<Follow> getFollowing(@PathVariable String userId) {
         return followService.getFollowing(userId);
     }
+
+    @GetMapping("/{followerId}/is-following/{followingId}")
+    public ResponseEntity<Void> isFollowing(@PathVariable String followerId, @PathVariable String followingId) {
+        boolean exists = followService.isFollowing(followerId, followingId);
+        return exists ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+    }
+
 }

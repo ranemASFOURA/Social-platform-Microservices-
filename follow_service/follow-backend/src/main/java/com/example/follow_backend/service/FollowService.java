@@ -36,4 +36,9 @@ public class FollowService {
     public List<Follow> getFollowing(String userId) {
         return followRepository.findByFollowerId(userId);
     }
+
+    public boolean isFollowing(String followerId, String followingId) {
+        return followRepository.existsByFollowerIdAndFollowingId(followerId, followingId);
+    }
+
 }
