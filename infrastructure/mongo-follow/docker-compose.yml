@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  mongo-follow:
+    image: mongo:6
+    container_name: mongo-follow
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-follow-data:/data/db
+    restart: always
+    networks:
+      - follow-network
+
+volumes:
+  mongo-follow-data:
+
+networks:
+  follow-network:
