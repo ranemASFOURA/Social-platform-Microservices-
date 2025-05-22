@@ -2,6 +2,8 @@ package com.example.user_backend.service;
 
 import io.minio.*;
 import io.minio.http.Method;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -13,7 +15,11 @@ import java.util.concurrent.TimeUnit;
 public class ImageService {
 
     private final MinioClient minioClient;
-    private static final String BUCKET_NAME = "user-images";
+    @Value("${minio.bucket}")
+    private String bucketName;
+
+    @Value("${minio.url}")
+    private String minioUrl;
 
     public ImageService(MinioClient minioClient) {
         this.minioClient = minioClient;
@@ -27,7 +33,7 @@ public class ImageService {
             String uploadUrl = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)
-                            .bucket(BUCKET_NAME)
+                            .bucket(bucketName)
                             .object(objectName)
                             .expiry(10, TimeUnit.MINUTES)
                             .build());
@@ -44,7 +50,7 @@ public class ImageService {
         }
     }
 
-    public String buildFileUrl(String objectName) {
-        return "http://localhost:9102/" + BUCKET_NAME + "/" + objectName;
+    private String buildFileUrl(String objectName) {
+        return minioUrl + "/" + bucketName + "/" + objectName;
     }
 }
