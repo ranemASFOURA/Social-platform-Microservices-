@@ -22,7 +22,9 @@ public class KafkaProducer {
         payload.put("userId", userId);
         payload.put("imageUrl", imageUrl);
         payload.put("caption", caption);
+        System.out.println("Sending Kafka post.created event...");
 
         kafkaTemplate.send("post.created", payload);
+        System.out.println("Event sent successfully.");
     }
 }
