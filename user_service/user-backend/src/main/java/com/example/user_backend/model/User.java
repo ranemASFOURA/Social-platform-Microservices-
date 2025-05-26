@@ -31,6 +31,7 @@ public class User {
     private String password;
     private String imageUrl;
     private LocalDateTime createdAt;
+    private String type = "regular"; // default
 
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -93,4 +94,13 @@ public class User {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
 }
