@@ -5,9 +5,17 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.RestTemplate;
+import java.time.Instant;
 
-import java.util.ArrayList;
+
+import java.util.Map;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 
 @RestController
 @RequestMapping("/api/feed")
@@ -17,23 +25,69 @@ public class FeedController {
     private StringRedisTemplate redisTemplate;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping
     public List<FeedPost> getFeed(@RequestParam String userId) {
-        List<String> rawPosts = redisTemplate.opsForList().range("feed:" + userId, 0, 49);
-        List<FeedPost> feed = new ArrayList<>();
+        List<FeedPost> timeline = new ArrayList<>();
 
-        if (rawPosts != null) {
-            for (String json : rawPosts) {
+        // 1. Fetch regular posts from feed:userId
+        List<String> regularPostsJson = redisTemplate.opsForList().range("feed:" + userId, 0, 49);
+        if (regularPostsJson != null) {
+            for (String json : regularPostsJson) {
                 try {
-                    FeedPost post = objectMapper.readValue(json, FeedPost.class);
-                    feed.add(post);
+                    timeline.add(objectMapper.readValue(json, FeedPost.class));
                 } catch (Exception e) {
-                    System.err.println("Failed to parse post: " + e.getMessage());
+                    System.err.println("Failed to parse regular post: " + e.getMessage());
                 }
             }
         }
 
-        return feed;
+        // 2. Fetch followed users
+        String followUrl = "http://localhost:8083/api/follow/following/" + userId;
+        ResponseEntity<Object[]> response = restTemplate.getForEntity(followUrl, Object[].class);
+        Object[] following = response.getBody();
+
+        if (following != null) {
+            for (Object obj : following) {
+                try {
+                    Map<?, ?> map = objectMapper.convertValue(obj, Map.class);
+                    String followedId = map.get("followingId").toString();
+
+                    // 3. Fetch user type from user-service
+                    String userTypeUrl = "http://localhost:8080/api/users/" + followedId + "/type";
+                    ResponseEntity<Map> userTypeResp = restTemplate.getForEntity(userTypeUrl, Map.class);
+
+                    if (userTypeResp.getStatusCode().is2xxSuccessful()) {
+                        String type = userTypeResp.getBody().get("type").toString();
+                        if ("influencer".equalsIgnoreCase(type)) {
+                            // 4. Fetch influencer posts from Redis
+                            List<String> inflPosts = redisTemplate.opsForList().range("influencer:feed:" + followedId, 0, 4);
+                            if (inflPosts != null) {
+                                for (String json : inflPosts) {
+                                    try {
+                                        timeline.add(objectMapper.readValue(json, FeedPost.class));
+                                    } catch (Exception e) {
+                                        System.err.println("Failed to parse influencer post: " + e.getMessage());
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                } catch (Exception e) {
+                    System.err.println("Error processing followed user: " + e.getMessage());
+                }
+            }
+        }
+
+        // 5. Sort timeline by timestamp (descending)
+        //timeline.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
+        timeline.sort((a, b) -> {
+    return Instant.parse(b.getTimestamp()).compareTo(Instant.parse(a.getTimestamp()));
+});
+
+
+        return timeline;
     }
 }

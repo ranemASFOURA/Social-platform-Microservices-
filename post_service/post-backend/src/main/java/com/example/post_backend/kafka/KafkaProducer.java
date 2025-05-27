@@ -15,13 +15,14 @@ public class KafkaProducer {
         this.kafkaTemplate = kafkaTemplate;
     }
 
-    public void sendPostCreatedEvent(String postId, String userId, String imageUrl, String caption) {
+    public void sendPostCreatedEvent(String postId, String userId, String imageUrl, String caption, String createdAt) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("eventType", "post.created");
         payload.put("postId", postId);
         payload.put("userId", userId);
         payload.put("imageUrl", imageUrl);
         payload.put("caption", caption);
+        payload.put("timestamp", createdAt);
         System.out.println("Sending Kafka post.created event...");
 
         kafkaTemplate.send("post.created", payload);

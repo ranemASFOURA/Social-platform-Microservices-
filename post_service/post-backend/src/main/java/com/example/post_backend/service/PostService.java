@@ -27,7 +27,8 @@ public class PostService {
                 saved.getId().toString(),
                 saved.getUserId(),
                 saved.getImageUrl(),
-                saved.getCaption());
+                saved.getCaption(),
+                saved.getCreatedAt().toString());
 
         return saved;
     }

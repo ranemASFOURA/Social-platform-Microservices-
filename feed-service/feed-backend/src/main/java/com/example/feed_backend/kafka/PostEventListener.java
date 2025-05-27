@@ -15,8 +15,9 @@ public class PostEventListener {
     private FeedService feedService;
 
     @KafkaListener(topics = "post.created", groupId = "feed-group")
-    public void listen(@Payload PostCreatedEvent event) {
-        System.out.println(" Received post.created event: " + event.getPostId());
+public void listen(@Payload PostCreatedEvent event) {
+    try {
+        System.out.println("Received post.created event: " + event.getPostId());
 
         FeedPost post = new FeedPost(
                 event.getPostId(),
@@ -27,5 +28,10 @@ public class PostEventListener {
         );
 
         feedService.distributePostToFollowers(post);
+    } catch (Exception e) {
+        System.err.println("Kafka listener failed: " + e.getMessage());
+        e.printStackTrace();
     }
+}
+
 }
