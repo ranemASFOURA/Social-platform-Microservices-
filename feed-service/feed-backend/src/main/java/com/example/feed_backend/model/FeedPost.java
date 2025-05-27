@@ -5,12 +5,12 @@ public class FeedPost {
     private String userId;
     private String imageUrl;
     private String caption;
-    private String timestamp;
+private String timestamp;
 
     public FeedPost() {
     }
 
-    public FeedPost(String postId, String userId, String imageUrl, String caption, String timestamp) {
+public FeedPost(String postId, String userId, String imageUrl, String caption, String timestamp) {
         this.postId = postId;
         this.userId = userId;
         this.imageUrl = imageUrl;

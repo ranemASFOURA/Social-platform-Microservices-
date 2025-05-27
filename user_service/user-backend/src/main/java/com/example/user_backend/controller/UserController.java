@@ -1,5 +1,6 @@
 package com.example.user_backend.controller;
 
+import com.example.user_backend.dto.InfluencerStatusChangedEvent;
 import com.example.user_backend.model.User;
 import com.example.user_backend.service.UserService;
 import com.example.user_backend.repository.*;
@@ -48,6 +49,14 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable String id) {
         return userRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/{id}/type")
+    public ResponseEntity<InfluencerStatusChangedEvent> getUserType(@PathVariable String id) {
+        return userRepository.findById(id)
+                .map(user -> new InfluencerStatusChangedEvent(user.getId(), user.getType()))
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }

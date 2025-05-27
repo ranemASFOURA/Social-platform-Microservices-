@@ -16,7 +16,7 @@ public class PostEventListener {
 
     @KafkaListener(topics = "post.created", groupId = "feed-group")
     public void listen(@Payload PostCreatedEvent event) {
-        System.out.println("📥 Received post.created event: " + event.getPostId());
+        System.out.println(" Received post.created event: " + event.getPostId());
 
         FeedPost post = new FeedPost(
                 event.getPostId(),
