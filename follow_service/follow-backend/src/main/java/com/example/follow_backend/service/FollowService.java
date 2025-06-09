@@ -5,6 +5,7 @@ import com.example.follow_backend.model.*;
 import com.example.follow_backend.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Instant;
@@ -15,10 +16,13 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private static final int INFLUENCER_THRESHOLD = 2;
+    private final RestTemplate restTemplate;
+    private final String userServiceUrl = "http://localhost:8080/api/users";
 
     @Autowired
-    public FollowService(FollowRepository followRepository) {
+    public FollowService(FollowRepository followRepository, RestTemplate restTemplate) {
         this.followRepository = followRepository;
+        this.restTemplate = restTemplate;
     }
 
     @Autowired
@@ -51,10 +55,26 @@ public class FollowService {
 
     private void sendInfluencerStatusUpdate(String userId) {
         long followerCount = followRepository.findByFollowingId(userId).size();
+        String userType = getUserTypeFromUserService(userId);
 
-        if (followerCount >= INFLUENCER_THRESHOLD) {
+        if (followerCount >= INFLUENCER_THRESHOLD && !"influencer".equals(userType)) {
+            // Promote to influencer
             InfluencerStatusChangedEvent event = new InfluencerStatusChangedEvent(userId, "influencer");
             kafkaTemplate.send("user.influencer.status.changed", event);
+        } else if (followerCount < INFLUENCER_THRESHOLD && !"regular".equals(userType)) {
+            // Demote to regular
+            InfluencerStatusChangedEvent event = new InfluencerStatusChangedEvent(userId, "regular");
+            kafkaTemplate.send("user.influencer.status.changed", event);
+        }
+    }
+
+    private String getUserTypeFromUserService(String userId) {
+        try {
+            String url = userServiceUrl + "/" + userId + "/type";
+            InfluencerStatusChangedEvent response = restTemplate.getForObject(url, InfluencerStatusChangedEvent.class);
+            return response != null ? response.getType() : "regular";
+        } catch (Exception e) {
+            return "regular";
         }
     }
 
