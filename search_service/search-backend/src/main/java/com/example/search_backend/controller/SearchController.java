@@ -1,7 +1,7 @@
 package com.example.search_backend.controller;
 
 import com.example.search_backend.model.UserDocument;
-import com.example.search_backend.repository.UserRepository;
+import com.example.search_backend.service.SearchService;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,17 +14,17 @@ import java.util.List;
 @RequestMapping("/api/search")
 public class SearchController {
 
-    private final UserRepository userRepository;
+    private final SearchService searchService;
     private static final Logger logger = LoggerFactory.getLogger(SearchController.class);
 
-    public SearchController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public SearchController(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     @GetMapping("/firstname")
     public ResponseEntity<List<UserDocument>> searchByFirstname(@RequestParam String firstname) {
         logger.info("Received search request for firstname: {}", firstname);
-        List<UserDocument> results = userRepository.findByFirstnameContainingIgnoreCase(firstname);
+        List<UserDocument> results = searchService.searchByFirstname(firstname);
         return ResponseEntity.ok(results);
     }
 
