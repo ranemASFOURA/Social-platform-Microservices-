@@ -4,6 +4,7 @@ import com.example.post_backend.model.Post;
 import com.example.post_backend.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import com.example.post_backend.kafka.*;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -19,6 +20,7 @@ public class PostService {
         this.kafkaProducer = kafkaProducer;
     }
 
+    @Transactional
     public Post createPost(String userId, String caption, String imageUrl) {
         Post post = new Post(userId, caption, imageUrl, Instant.now());
         Post saved = postRepository.save(post);
@@ -29,6 +31,10 @@ public class PostService {
                 saved.getImageUrl(),
                 saved.getCaption(),
                 saved.getCreatedAt().toString());
+        if (userId == null || imageUrl == null ||
+                caption.isBlank() || imageUrl.isBlank()) {
+            throw new IllegalArgumentException("Post fields must not be empty.");
+        }
 
         return saved;
     }
