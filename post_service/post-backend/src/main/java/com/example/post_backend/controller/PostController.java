@@ -3,8 +3,9 @@ package com.example.post_backend.controller;
 import com.example.post_backend.model.Post;
 import com.example.post_backend.service.PostService;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -22,7 +23,11 @@ public class PostController {
     }
 
     @GetMapping("/{userId}")
-    public List<Post> getUserPosts(@PathVariable String userId) {
-        return postService.getUserPosts(userId);
+    public Page<Post> getUserPosts(
+            @PathVariable String userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return postService.getUserPosts(userId, pageable);
     }
 }

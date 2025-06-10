@@ -5,6 +5,8 @@ import com.example.post_backend.repository.PostRepository;
 import org.springframework.stereotype.Service;
 import com.example.post_backend.kafka.*;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;
 import java.util.List;
@@ -23,6 +25,11 @@ public class PostService {
     @Transactional
     public Post createPost(String userId, String caption, String imageUrl) {
         Post post = new Post(userId, caption, imageUrl, Instant.now());
+
+        if (userId == null || imageUrl == null ||
+                caption.isBlank() || imageUrl.isBlank()) {
+            throw new IllegalArgumentException("Post fields must not be empty.");
+        }
         Post saved = postRepository.save(post);
 
         kafkaProducer.sendPostCreatedEvent(
@@ -31,15 +38,11 @@ public class PostService {
                 saved.getImageUrl(),
                 saved.getCaption(),
                 saved.getCreatedAt().toString());
-        if (userId == null || imageUrl == null ||
-                caption.isBlank() || imageUrl.isBlank()) {
-            throw new IllegalArgumentException("Post fields must not be empty.");
-        }
 
         return saved;
     }
 
-    public List<Post> getUserPosts(String userId) {
-        return postRepository.findByUserId(userId);
+    public Page<Post> getUserPosts(String userId, Pageable pageable) {
+        return postRepository.findByUserId(userId, pageable);
     }
 }
