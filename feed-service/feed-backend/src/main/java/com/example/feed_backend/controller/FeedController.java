@@ -28,11 +28,12 @@ public class FeedController {
     private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping
-    public List<FeedPost> getFeed(@RequestParam String userId) {
+    public List<FeedPost> getFeed(@RequestParam String userId,@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "10") int size) {
         List<FeedPost> timeline = new ArrayList<>();
+        int preloadLimit = 100;
 
         // 1. Fetch regular posts from feed:userId
-        List<String> regularPostsJson = redisTemplate.opsForList().range("feed:" + userId, 0, 49);
+        List<String> regularPostsJson = redisTemplate.opsForList().range("feed:" + userId, 0, preloadLimit - 1);
         if (regularPostsJson != null) {
             for (String json : regularPostsJson) {
                 try {
@@ -61,8 +62,8 @@ public class FeedController {
                     if (userTypeResp.getStatusCode().is2xxSuccessful()) {
                         String type = userTypeResp.getBody().get("type").toString();
                         if ("influencer".equalsIgnoreCase(type)) {
-                            // 4. Fetch influencer posts from Redis
-                            List<String> inflPosts = redisTemplate.opsForList().range("influencer:feed:" + followedId, 0, 4);
+    List<String> inflPosts = redisTemplate.opsForList().range("influencer:feed:" + followedId, 0, preloadLimit - 1);
+
                             if (inflPosts != null) {
                                 for (String json : inflPosts) {
                                     try {
@@ -86,8 +87,13 @@ public class FeedController {
         timeline.sort((a, b) -> {
     return Instant.parse(b.getTimestamp()).compareTo(Instant.parse(a.getTimestamp()));
 });
+    int start = page * size;
+    int end = Math.min(start + size, timeline.size());
 
-
-        return timeline;
+    if (start >= timeline.size()) {
+        return List.of(); 
     }
+
+    return timeline.subList(start, end);
+}
 }
