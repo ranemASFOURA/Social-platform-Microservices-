@@ -20,7 +20,7 @@ public class UserEventListener {
 
     @KafkaListener(topics = "user.influencer.status.changed", groupId = "user-group")
     public void handleInfluencerStatusChanged(InfluencerStatusChangedEvent event) {
-        System.out.println("✅ Received: " + event.getUserId() + " => " + event.getType());
+        System.out.println("Received: " + event.getUserId() + " => " + event.getType());
 
         Query query = new Query(Criteria.where("_id").is(event.getUserId()));
         Update update = new Update().set("type", event.getType());

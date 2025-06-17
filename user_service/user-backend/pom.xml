@@ -66,14 +66,15 @@
           <version>8.5.7</version>
         </dependency>
 		<dependency>
-    <groupId>org.modelmapper</groupId>
-    <artifactId>modelmapper</artifactId>
-    <version>3.1.0</version>
-</dependency>
-
-
-
-		
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+		<dependency>
+            <groupId>org.modelmapper</groupId>
+            <artifactId>modelmapper</artifactId>
+            <version>3.1.0</version>
+        </dependency>	
 	</dependencies>
 
 	<build>

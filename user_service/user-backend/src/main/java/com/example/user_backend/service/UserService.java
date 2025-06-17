@@ -55,6 +55,7 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User saved = userRepository.save(user);
+        logger.info("Saved user with ID: {}", saved.getId());
         eventPublisher.publishUserCreated(saved);
         return saved;
 

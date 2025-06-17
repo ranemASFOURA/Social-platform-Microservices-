@@ -1,6 +1,7 @@
 package com.example.follow_backend.Controller;
 
 import com.example.follow_backend.model.*;
+import com.example.follow_backend.security.JwtUtil;
 import com.example.follow_backend.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,19 +14,25 @@ import java.util.List;
 public class FollowController {
 
     private final FollowService followService;
+    private final JwtUtil jwtUtil;
 
     @Autowired
-    public FollowController(FollowService followService) {
+    public FollowController(FollowService followService, JwtUtil jwtUtil) {
         this.followService = followService;
+        this.jwtUtil = jwtUtil;
     }
 
-    @PostMapping("/{followerId}/follow/{followingId}")
-    public void follow(@PathVariable String followerId, @PathVariable String followingId) {
+    @PostMapping("/follow/{followingId}")
+    public void follow(@RequestHeader("Authorization") String authHeader,
+            @PathVariable String followingId) {
+        String followerId = jwtUtil.extractUserId(authHeader);
         followService.follow(followerId, followingId);
     }
 
-    @DeleteMapping("/{followerId}/unfollow/{followingId}")
-    public void unfollow(@PathVariable String followerId, @PathVariable String followingId) {
+    @DeleteMapping("/unfollow/{followingId}")
+    public void unfollow(@RequestHeader("Authorization") String authHeader,
+            @PathVariable String followingId) {
+        String followerId = jwtUtil.extractUserId(authHeader);
         followService.unfollow(followerId, followingId);
     }
 
@@ -39,8 +46,10 @@ public class FollowController {
         return followService.getFollowing(userId);
     }
 
-    @GetMapping("/{followerId}/is-following/{followingId}")
-    public ResponseEntity<Void> isFollowing(@PathVariable String followerId, @PathVariable String followingId) {
+    @GetMapping("/is-following/{followingId}")
+    public ResponseEntity<Void> isFollowing(@RequestHeader("Authorization") String authHeader,
+            @PathVariable String followingId) {
+        String followerId = jwtUtil.extractUserId(authHeader);
         boolean exists = followService.isFollowing(followerId, followingId);
         return exists ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
