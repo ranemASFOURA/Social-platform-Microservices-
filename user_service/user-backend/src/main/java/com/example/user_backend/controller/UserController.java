@@ -3,15 +3,12 @@ package com.example.user_backend.controller;
 import com.example.user_backend.model.User;
 import com.example.user_backend.service.UserService;
 import com.example.user_backend.repository.*;
-import com.example.user_backend.security.JwtUtil;
 import com.example.user_backend.mapper.*;
 import com.example.user_backend.dto.*;
 import jakarta.validation.Valid;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +21,6 @@ public class UserController {
     private final UserService userService;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-
-    @Autowired
-    private JwtUtil jwtUtil;
 
     public UserController(UserService userService, UserRepository userRepository, UserMapper userMapper) {
         this.userService = userService;
@@ -45,17 +39,14 @@ public class UserController {
 
     @PutMapping("/me")
     public ResponseEntity<UserResponseDTO> editProfile(
-            @RequestHeader("Authorization") String authHeader,
+            @RequestHeader("X-User-Id") String userId,
             @RequestBody @Valid UserUpdateRequestDTO dto) {
-
-        String userId = jwtUtil.extractUserId(authHeader);
         User updated = userService.updateUser(userId, dto);
         return ResponseEntity.ok(userMapper.toResponse(updated));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserResponseDTO> getMyProfile(@RequestHeader("Authorization") String authHeader) {
-        String userId = jwtUtil.extractUserId(authHeader);
+    public ResponseEntity<UserResponseDTO> getMyProfile(@RequestHeader("X-User-Id") String userId) {
         return userRepository.findById(userId)
                 .map(userMapper::toResponse)
                 .map(ResponseEntity::ok)

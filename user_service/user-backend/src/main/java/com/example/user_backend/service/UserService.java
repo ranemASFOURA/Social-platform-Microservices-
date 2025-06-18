@@ -70,9 +70,11 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + id));
 
         if (dto.getEmail() != null && !dto.getEmail().equals(user.getEmail())) {
-            if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-                throw new EmailAlreadyExistsException(dto.getEmail());
-            }
+            userRepository.findByEmail(dto.getEmail()).ifPresent(existingUser -> {
+                if (!existingUser.getId().equals(user.getId())) {
+                    throw new EmailAlreadyExistsException(dto.getEmail());
+                }
+            });
         }
 
         Query query = new Query(Criteria.where("_id").is(id));
