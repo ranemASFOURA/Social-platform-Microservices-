@@ -22,8 +22,11 @@ public class SearchController {
     }
 
     @GetMapping("/firstname")
-    public ResponseEntity<List<UserDocument>> searchByFirstname(@RequestParam String firstname) {
-        logger.info("Received search request for firstname: {}", firstname);
+    public ResponseEntity<List<UserDocument>> searchByFirstname(
+            @RequestHeader("X-User-Id") String userId,
+            @RequestParam String firstname) {
+
+        logger.info("Search requested by user: {}", userId);
         List<UserDocument> results = searchService.searchByFirstname(firstname);
         return ResponseEntity.ok(results);
     }

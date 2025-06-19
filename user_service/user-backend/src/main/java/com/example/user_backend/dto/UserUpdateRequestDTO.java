@@ -1,20 +1,18 @@
 package com.example.user_backend.dto;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+
 import jakarta.validation.constraints.Size;
 
 public class UserUpdateRequestDTO {
-    @NotBlank
-    @Size(min = 2, max = 50)
+
     private String firstname;
 
-    @NotBlank
     @Size(min = 2, max = 50)
     private String lastname;
 
     @Email
-    @NotBlank
+
     private String email;
 
     @Size(min = 6, max = 100)
