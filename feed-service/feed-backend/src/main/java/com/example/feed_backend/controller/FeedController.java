@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
-import com.example.feed_backend.security.JwtUtil;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import java.time.Instant;
@@ -24,19 +23,16 @@ public class FeedController {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
-    @Autowired
-private JwtUtil jwtUtil;
 
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final RestTemplate restTemplate = new RestTemplate();
 
     @GetMapping
-public List<FeedPost> getFeed(@RequestHeader("Authorization") String authHeader,
+public List<FeedPost> getFeed(@RequestHeader("X-User-Id") String userId,
                               @RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size) {
 
-    String userId = jwtUtil.extractUserId(authHeader);
         List<FeedPost> timeline = new ArrayList<>();
         int preloadLimit = 100;
 
