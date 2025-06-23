@@ -13,3 +13,8 @@ services:
     volumes:
       - "./minio-data:/data"
     command: server /data --console-address ":9001"
+    networks:
+      - shared-net
+networks:
+  shared-net:
+    name: shared-net

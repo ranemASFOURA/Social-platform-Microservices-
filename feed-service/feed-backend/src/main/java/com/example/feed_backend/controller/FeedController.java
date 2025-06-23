@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-
 @RestController
 @RequestMapping("/api/feed")
 public class FeedController {

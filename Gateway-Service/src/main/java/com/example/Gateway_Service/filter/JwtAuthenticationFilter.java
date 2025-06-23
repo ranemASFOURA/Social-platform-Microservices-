@@ -28,7 +28,8 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     private String secret;
     private static final List<String> openApiEndpoints = List.of(
             "/api/auth/login",
-            "/api/users/signup");
+            "/api/users/signup",
+            "/api/images/generate-upload-url");
 
     private boolean isSecured(String path) {
         return openApiEndpoints.stream().noneMatch(path::contains);

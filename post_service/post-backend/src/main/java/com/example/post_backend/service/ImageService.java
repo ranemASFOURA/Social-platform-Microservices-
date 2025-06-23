@@ -28,8 +28,9 @@ public class ImageService {
 
     public Map<String, String> generateUploadUrl(String originalFilename) {
         try {
-            String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-            String objectName = UUID.randomUUID() + extension;
+            // String extension =
+            // originalFilename.substring(originalFilename.lastIndexOf('.'));
+            String objectName = UUID.randomUUID() + ".webp";
 
             String uploadUrl = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
