@@ -9,6 +9,7 @@ public class UserResponseDTO {
     private String email;
     private String imageUrl;
     private String type;
+    private String bio;
     private LocalDateTime createdAt;
 
     // Getters and Setters
@@ -67,4 +68,13 @@ public class UserResponseDTO {
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
 }

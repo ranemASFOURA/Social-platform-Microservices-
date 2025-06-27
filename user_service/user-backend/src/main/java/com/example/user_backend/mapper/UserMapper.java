@@ -43,6 +43,9 @@ public class UserMapper {
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             user.setPassword(dto.getPassword());
         }
+        if (dto.getBio() != null)
+            user.setBio(dto.getBio());
+
     }
 
 }

@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,6 +109,12 @@ public class UserController {
                 })
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/sample")
+    public ResponseEntity<List<UserEventDTO>> getSampleUsers(@RequestParam(defaultValue = "10") int limit) {
+        List<UserEventDTO> users = userService.getRandomUsers(limit);
+        return ResponseEntity.ok(users);
     }
 
 }

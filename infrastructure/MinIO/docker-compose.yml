@@ -17,4 +17,5 @@ services:
       - shared-net
 networks:
   shared-net:
-    name: shared-net
+    external: true
+

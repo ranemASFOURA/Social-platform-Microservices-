@@ -5,3 +5,11 @@
   configsvr: true,
   _id: "configReplSet",
 rs.initiate({
+rs.initiate({ _id: "configReplSet", configsvr: true, members: [{ _id: 0, host: "configsvr:27017" }] })
+})
+  ]
+    { _id: 0, host: "configsvr:27017" }
+  members: [
+  configsvr: true,
+  _id: "configReplSet",
+rs.initiate({iate({

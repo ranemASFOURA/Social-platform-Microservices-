@@ -19,6 +19,7 @@ public class UserUpdateRequestDTO {
     private String password;
 
     private String imageUrl;
+    private String bio;
 
     // Getters and Setters
     public String getFirstname() {
@@ -59,6 +60,14 @@ public class UserUpdateRequestDTO {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
 }

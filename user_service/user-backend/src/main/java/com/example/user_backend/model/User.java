@@ -21,6 +21,7 @@ public class User {
     private String imageUrl;
     private LocalDateTime createdAt;
     private String type = "regular"; // default
+    private String bio;
 
     public User() {
         this.createdAt = LocalDateTime.now();
@@ -90,6 +91,14 @@ public class User {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 
 }

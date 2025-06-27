@@ -58,4 +58,12 @@ public class FollowController {
         return exists ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 
+    @GetMapping("/following-ids")
+    public List<String> getMyFollowingIds(@RequestHeader("X-User-Id") String userId) {
+        return followService.getFollowing(userId)
+                .stream()
+                .map(Follow::getFollowingId)
+                .toList();
+    }
+
 }

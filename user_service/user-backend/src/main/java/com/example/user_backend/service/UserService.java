@@ -5,6 +5,7 @@ import com.example.user_backend.repository.*;
 //import org.modelmapper.ModelMapper;
 import com.example.user_backend.Exception.EmailAlreadyExistsException;
 import com.example.user_backend.Exception.UserNotFoundException;
+import com.example.user_backend.dto.UserEventDTO;
 import com.example.user_backend.dto.UserRegisterRequestDTO;
 import com.example.user_backend.dto.UserUpdateRequestDTO;
 import com.example.user_backend.kafka.KafkaEventPublisher;
@@ -19,6 +20,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,12 +95,20 @@ public class UserService {
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
             update.set("password", passwordEncoder.encode(dto.getPassword()));
         }
+        if (dto.getBio() != null)
+            update.set("bio", dto.getBio());
+
         mongoTemplate.updateFirst(query, update, User.class);
         User updatedUser = mongoTemplate.findById(id, User.class);
 
         eventPublisher.publishUserUpdated(updatedUser);
 
         return updatedUser;
+    }
+
+    // UserService.java
+    public List<UserEventDTO> getRandomUsers(int limit) {
+        return userRepository.findRandomUsers(limit);
     }
 
 }
