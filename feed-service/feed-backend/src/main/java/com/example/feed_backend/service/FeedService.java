@@ -8,6 +8,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.beans.factory.annotation.Value;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,11 @@ public class FeedService implements com.example.feed_backend.repository.FeedRepo
 
     private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
 
+    @Value("${user.service.url}")
+private String userServiceUrl;
+
+@Value("${follow.service.url}")
+private String followServiceUrl;
 
     @Autowired
     public FeedService(StringRedisTemplate redisTemplate) {
@@ -49,7 +56,7 @@ public void distributePostToFollowers(FeedPost post) {
             redisTemplate.opsForList().trim(influencerFeedKey, 0, 49);
             logger.info(" Stored post in influencer feed: {}", influencerFeedKey);
         } else {
-            String url = "http://localhost:8083/api/follow/followers/" + userId;
+            String url = followServiceUrl + "/followers/" + userId;
             logger.info(" Fetching followers from: {}", url);
 
             ResponseEntity<Object[]> response = restTemplate.getForEntity(url, Object[].class);
@@ -82,7 +89,7 @@ public void distributePostToFollowers(FeedPost post) {
 
     private String getUserType(String userId) {
     try {
-        String url = "http://localhost:8080/api/users/" + userId + "/type";
+        String url = userServiceUrl + "/" + userId + "/type";
         logger.info(" Calling user-service for type: {}", url);
 
         ResponseEntity<UserTypeResponse> response = restTemplate.getForEntity(url, UserTypeResponse.class);

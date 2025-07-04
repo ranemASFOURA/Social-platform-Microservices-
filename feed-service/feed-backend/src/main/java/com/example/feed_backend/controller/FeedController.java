@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import java.time.Instant;
+import org.springframework.beans.factory.annotation.Value;
+
 
 
 import java.util.Map;
@@ -22,6 +24,12 @@ public class FeedController {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+    @Value("${user.service.url}")
+private String userServiceUrl;
+
+@Value("${follow.service.url}")
+private String followServiceUrl;
+
 
 
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -48,7 +56,7 @@ public List<FeedPost> getFeed(@RequestHeader("X-User-Id") String userId,
         }
 
         // 2. Fetch followed users
-        String followUrl = "http://localhost:8083/api/follow/following/" + userId;
+        String followUrl = followServiceUrl + "/following/" + userId;
         ResponseEntity<Object[]> response = restTemplate.getForEntity(followUrl, Object[].class);
         Object[] following = response.getBody();
 
@@ -59,7 +67,8 @@ public List<FeedPost> getFeed(@RequestHeader("X-User-Id") String userId,
                     String followedId = map.get("followingId").toString();
 
                     // 3. Fetch user type from user-service
-                    String userTypeUrl = "http://localhost:8080/api/users/" + followedId + "/type";
+                   String userTypeUrl = userServiceUrl + "/" + followedId + "/type";
+
                     ResponseEntity<Map> userTypeResp = restTemplate.getForEntity(userTypeUrl, Map.class);
 
                     if (userTypeResp.getStatusCode().is2xxSuccessful()) {
