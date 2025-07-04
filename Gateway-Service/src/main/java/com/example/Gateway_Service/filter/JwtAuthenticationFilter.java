@@ -17,6 +17,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.buffer.DataBuffer;
+import java.nio.charset.StandardCharsets;
 
 @Component
 @Order(0)
@@ -39,10 +41,10 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
-        logger.info("➡️ Incoming request to path: {}", path);
+        logger.info("Incoming request to path: {}", path);
 
         if (!isSecured(path)) {
-            logger.info("🔓 Public endpoint. Skipping JWT validation.");
+            logger.info("Public endpoint. Skipping JWT validation.");
             return chain.filter(exchange);
         }
 
@@ -59,27 +61,39 @@ public class JwtAuthenticationFilter implements GlobalFilter {
                 String userId = claims.getSubject();
                 String role = claims.get("type", String.class);
 
-                logger.info("✅ JWT valid. Extracted userId={}, role={}", userId, role);
+                logger.info("JWT valid. Extracted userId={}, role={}", userId, role);
 
                 ServerHttpRequest modifiedRequest = request.mutate()
                         .header("X-User-Id", userId)
                         .header("X-User-Role", role)
                         .build();
 
-                logger.info("📤 Forwarding request with added headers to downstream service.");
+                logger.info("Forwarding request with added headers to downstream service.");
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
             } catch (Exception e) {
-                logger.error("❌ JWT parsing failed: {}", e.getMessage());
-                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-                return exchange.getResponse().setComplete();
+                logger.error(" JWT parsing failed: {}", e.getMessage());
+                return onError(exchange, "Your session has expired. Please log in again.", HttpStatus.UNAUTHORIZED);
             }
+
         } else {
-            logger.warn("⚠️ Authorization header missing or malformed.");
+            logger.warn("Authorization header missing or malformed.");
         }
 
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
+    }
+
+    private Mono<Void> onError(ServerWebExchange exchange, String message, HttpStatus status) {
+        exchange.getResponse().setStatusCode(status);
+        exchange.getResponse().getHeaders().add("Content-Type", "application/json");
+
+        String json = String.format("{\"error\": \"%s\"}", message);
+        DataBuffer buffer = exchange.getResponse()
+                .bufferFactory()
+                .wrap(json.getBytes(StandardCharsets.UTF_8));
+
+        return exchange.getResponse().writeWith(Mono.just(buffer));
     }
 
 }

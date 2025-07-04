@@ -33,9 +33,9 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRegisterRequestDTO dto) {
-        logger.info("Received signup request for email: {}", dto.getEmail());
+        // logger.info("Received signup request for email: {}", dto.getEmail());
         User savedUser = userService.createUser(dto);
-        logger.info("User created with ID: {}", savedUser.getId());
+        // logger.info("User created with ID: {}", savedUser.getId());
         return ResponseEntity.ok(userMapper.toResponse(savedUser));
     }
 

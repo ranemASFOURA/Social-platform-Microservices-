@@ -3,6 +3,7 @@ package com.example.user_backend.dto;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 public class UserRegisterRequestDTO {
     @NotBlank
@@ -15,6 +16,7 @@ public class UserRegisterRequestDTO {
 
     @Email
     @NotBlank
+    @Indexed(unique = true)
     private String email;
 
     @NotBlank

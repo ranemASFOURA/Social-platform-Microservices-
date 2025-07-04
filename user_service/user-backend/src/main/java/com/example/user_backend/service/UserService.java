@@ -2,7 +2,6 @@ package com.example.user_backend.service;
 
 import com.example.user_backend.model.User;
 import com.example.user_backend.repository.*;
-//import org.modelmapper.ModelMapper;
 import com.example.user_backend.Exception.EmailAlreadyExistsException;
 import com.example.user_backend.Exception.UserNotFoundException;
 import com.example.user_backend.dto.UserEventDTO;
@@ -11,17 +10,17 @@ import com.example.user_backend.dto.UserUpdateRequestDTO;
 import com.example.user_backend.kafka.KafkaEventPublisher;
 import com.example.user_backend.mapper.UserMapper;
 
-import org.springframework.beans.factory.annotation.Autowired;
+//import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
-import org.springframework.data.mongodb.core.query.Criteria;
+//import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
+//import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,6 +56,7 @@ public class UserService {
         User user = userMapper.toEntity(dto);
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        // user.setPassword("$2a$10$abcdefghijklmnopqrstuv");
 
         User saved = userRepository.save(user);
         logger.info("Saved user with ID: {}", saved.getId());

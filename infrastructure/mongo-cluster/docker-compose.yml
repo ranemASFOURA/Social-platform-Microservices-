@@ -10,7 +10,7 @@ services:
     ports:
       - "27019:27017" 
     volumes:
-      - ./mongo/configdb:/data/db
+      - configsvr-data:/data/db
     networks:
       - mongo-cluster
 
@@ -22,7 +22,7 @@ services:
     ports:
       - "27101:27017"
     volumes:
-      - ./mongo/shard1a:/data/db
+      - shard1a-data:/data/db
     networks:
       - mongo-cluster
 
@@ -48,7 +48,7 @@ services:
     ports:
       - "27104:27017"
     volumes:
-      - ./mongo/shard2a:/data/db
+      - shard2a-data:/data/db
     networks:
       - mongo-cluster
 
@@ -86,3 +86,9 @@ services:
 
 networks:
   mongo-cluster:
+
+volumes:
+  shard1a-data:
+  shard2a-data:
+  configsvr-data:
+

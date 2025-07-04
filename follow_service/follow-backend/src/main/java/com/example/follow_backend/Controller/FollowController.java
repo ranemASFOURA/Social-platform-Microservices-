@@ -52,10 +52,10 @@ public class FollowController {
     }
 
     @GetMapping("/is-following/{followingId}")
-    public ResponseEntity<Void> isFollowing(@RequestHeader("X-User-Id") String followerId,
+    public ResponseEntity<Boolean> isFollowing(@RequestHeader("X-User-Id") String followerId,
             @PathVariable String followingId) {
         boolean exists = followService.isFollowing(followerId, followingId);
-        return exists ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
+        return ResponseEntity.ok(exists);
     }
 
     @GetMapping("/following-ids")
