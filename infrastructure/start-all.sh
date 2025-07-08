@@ -8,6 +8,6 @@ docker compose -f mongo-follow/docker-compose.yml up -d
 docker compose -f mongo-cluster/docker-compose.yml up -d
 docker compose -f MinIO/docker-compose.yml up -d
 docker compose -f kafka/docker-compose.yml up -d
-docker compose -f elk-docker/docker-compose.yml up -d
+docker compose -f elasticsearch/docker-compose.yml up -d
 
 echo "All services started."

@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-follow
+  namespace: databases
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-follow
+  template:
+    metadata:
+      labels:
+        app: mongo-follow
+    spec:
+      containers:
+        - name: mongo-follow
+          image: 172.29.3.41:5000/mongo-follow:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: mongo-follow-storage
+              mountPath: /data/db
+      volumes:
+        - name: mongo-follow-storage
+          persistentVolumeClaim:
+            claimName: mongo-follow-pvc

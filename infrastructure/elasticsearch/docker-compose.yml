@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   elasticsearch:
     image: elasticsearch:8.11.3
@@ -13,28 +14,6 @@ services:
       - "9200:9200"
     volumes:
       - esdata:/usr/share/elasticsearch/data
-    networks:
-      - elk
-
-  kibana:
-    image: kibana:8.11.3
-    container_name: kibana
-    ports:
-      - "5601:5601"
-    environment:
-      ELASTICSEARCH_HOSTS: "http://elasticsearch:9200"
-    depends_on:
-      - elasticsearch
-    networks:
-      - elk
-
-  logstash:
-    image: logstash:8.11.3
-    container_name: logstash
-    ports:
-      - "5044:5044"
-    depends_on:
-      - elasticsearch
     networks:
       - elk
 
