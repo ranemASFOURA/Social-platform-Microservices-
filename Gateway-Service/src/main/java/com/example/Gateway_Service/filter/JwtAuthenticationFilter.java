@@ -31,7 +31,11 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     private static final List<String> openApiEndpoints = List.of(
             "/api/auth/login",
             "/api/users/signup",
-            "/api/images/generate-upload-url");
+            "/api/images/generate-upload-url",
+            "/api/image-proxy",
+            "/images",
+            "/fallback/images",
+            "/cdn/");
 
     private boolean isSecured(String path) {
         return openApiEndpoints.stream().noneMatch(path::contains);
@@ -41,7 +45,9 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getURI().getPath();
-        logger.info("Incoming request to path: {}", path);
+        logger.info("===== Gateway RECEIVED: {} {}", request.getMethod(), path);
+        logger.info("Query Params: {}", request.getQueryParams());
+        logger.info("Headers: {}", request.getHeaders());
 
         if (!isSecured(path)) {
             logger.info("Public endpoint. Skipping JWT validation.");
