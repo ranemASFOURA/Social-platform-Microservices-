@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-post
+  namespace: databases
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-post
+  template:
+    metadata:
+      labels:
+        app: mysql-post
+    spec:
+      containers:
+        - name: mysql
+          image: 172.29.3.41:5000/mysql:8
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: root
+            - name: MYSQL_DATABASE
+              value: post_db
+            - name: MYSQL_USER
+              value: post_user
+            - name: MYSQL_PASSWORD
+              value: post_pass
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc

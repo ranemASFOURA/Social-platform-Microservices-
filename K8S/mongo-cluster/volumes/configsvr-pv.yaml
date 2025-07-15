@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: configsvr-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: manual
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/data/configsvr"
+    type: DirectoryOrCreate
+  claimRef:
+    name: configsvr-storage-configsvr-0
+    namespace: databases

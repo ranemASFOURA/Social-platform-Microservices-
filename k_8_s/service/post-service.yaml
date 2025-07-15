@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: post-service
+  namespace: rm-photo-app
+spec:
+  selector:
+    app: post-service
+  ports:
+    - protocol: TCP
+      port: 8084
+      targetPort: 8084

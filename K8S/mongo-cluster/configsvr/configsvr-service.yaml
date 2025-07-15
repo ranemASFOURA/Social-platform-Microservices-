@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: configsvr-service
+  namespace: databases
+spec:
+  clusterIP: None  # Headless service
+  selector:
+    app: configsvr
+  ports:
+    - port: 27017
+      targetPort: 27017
+      name: mongodb

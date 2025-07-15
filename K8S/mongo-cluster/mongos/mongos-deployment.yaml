@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongos
+  namespace: databases
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongos
+  template:
+    metadata:
+      labels:
+        app: mongos
+    spec:
+      containers:
+        - name: mongos
+          image: 172.29.3.41:5000/mongo:6
+          command:
+            - mongos
+            - "--configdb=configReplSet/configsvr-0.configsvr-service.databases.svc.cluster.local:27017"
+            - "--bind_ip_all"
+            - "--port=27017"
+          ports:
+            - containerPort: 27017

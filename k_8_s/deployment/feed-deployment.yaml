@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: feed-service
+  namespace: rm-photo-app
+  labels:
+    app: feed-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: feed-service
+  template:
+    metadata:
+      labels:
+        app: feed-service
+    spec:
+      containers:
+        - name: feed-service
+          image: 172.29.3.41:5000/feed-service:0.3
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8085
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"

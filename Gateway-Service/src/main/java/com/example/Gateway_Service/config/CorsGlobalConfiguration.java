@@ -11,7 +11,7 @@ import java.util.List;
 
 @Configuration
 public class CorsGlobalConfiguration {
-    @Value("${frontend.base-url:http://localhost:3000}")
+    @Value("${frontend.base-url}")
     private String frontendBaseUrl;
 
     @Bean
