@@ -8,6 +8,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.resources.ConnectionProvider;
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/fallback/images")
@@ -16,20 +22,30 @@ public class ImageFallbackController {
     @Value("${minio.base-url}")
     private String minioBaseUrl;
 
-    private final WebClient webClient = WebClient.create();
     private static final MediaType IMAGE_WEBP = MediaType.parseMediaType("image/webp");
+    private static final Logger logger = LoggerFactory.getLogger(ImageFallbackController.class);
+    private final WebClient webClient = WebClient.builder()
+            .clientConnector(new ReactorClientHttpConnector(
+                    HttpClient.create()
+                            .responseTimeout(Duration.ofSeconds(10))
+                            .compress(true)))
+            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10 MB
+            .build();
 
     @GetMapping
     public Mono<ResponseEntity<ByteArrayResource>> fallback(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
         String path = request.getHeaders().getFirst("X-Original-Image-Path");
+        logger.info("[Gateway] Request path: " + path);
+        System.out.println("[Fallback] Incoming fallback request to /fallback/images");
+        System.out.println("[Fallback] X-Original-Image-Path = " + path);
 
         if (path == null || path.isEmpty()) {
             return Mono.just(ResponseEntity.badRequest().build());
         }
 
-        String fullUrl = minioBaseUrl + path;
-        System.out.println("[Fallback] Fetching from MinIO: " + fullUrl);
+        String fullUrl = minioBaseUrl + path.replace("/cdn", "");
+        logger.info("[Fallback] Fetching from MinIO: {}", fullUrl);
 
         return webClient.get()
                 .uri(fullUrl)
@@ -48,7 +64,7 @@ public class ImageFallbackController {
                             });
                 })
                 .onErrorResume(e -> {
-                    System.err.println("[Fallback] Failed: " + e.getMessage());
+                    logger.warn("[Fallback] Failed: {}", e.getMessage());
                     return Mono.just(ResponseEntity.notFound().build());
                 });
     }

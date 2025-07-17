@@ -9,20 +9,26 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MinioConfig {
 
-    @Value("${minio.url}")
-    private String url;
+    // @Value("${minio.url}")
+    // private String url;
 
-    @Value("${minio.accessKey}")
-    private String accessKey;
+    // @Value("${minio.accessKey}")
+    // private String accessKey;
 
-    @Value("${minio.secretKey}")
-    private String secretKey;
+    // @Value("${minio.secretKey}")
+    // private String secretKey;
 
-    @Bean
-    public MinioClient minioClient() {
-        return MinioClient.builder()
-                .endpoint(url)
-                .credentials(accessKey, secretKey)
-                .build();
+    @Bean("internalMinio")
+    public MinioClient internal(@Value("${minio.url}") String url,
+            @Value("${minio.accessKey}") String ak,
+            @Value("${minio.secretKey}") String sk) {
+        return MinioClient.builder().endpoint(url).credentials(ak, sk).build();
+    }
+
+    @Bean("publicMinio")
+    public MinioClient external(@Value("${minio.public-url}") String url,
+            @Value("${minio.accessKey}") String ak,
+            @Value("${minio.secretKey}") String sk) {
+        return MinioClient.builder().endpoint(url).credentials(ak, sk).build();
     }
 }

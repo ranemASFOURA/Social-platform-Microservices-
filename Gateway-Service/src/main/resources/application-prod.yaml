@@ -11,19 +11,20 @@ spring:
 
   cloud:
     gateway:
-      globalcors:
-        corsConfigurations:
-          "[/**]":
-            allowedOrigins:
-              - "http://localhost:3000"
-            allowedMethods:
-              - GET
-              - POST
-              - PUT
-              - DELETE
-              - OPTIONS
-            allowedHeaders:
-              - "*"
+      #globalcors:
+      #corsConfigurations:
+      #"[/**]":
+      #allowedOrigins:
+      #- "http://172.29.5.41:30081"
+      #- "http://localhost:3000"
+      #allowedMethods:
+      #- GET
+      #- POST
+      #- PUT
+      #- DELETE
+      #- OPTIONS
+      #allowedHeaders:
+      #- "*"
 
       routes:
         - id: user-service
@@ -59,14 +60,15 @@ spring:
             - name: RewritePath
               args:
                 regexp: "/api/image-proxy/(?<path>.*)"
-                replacement: "/cdn/${path}"
+                replacement: "/cdn/$\\{path}"
+            - name: InjectImageHeader
             - name: CircuitBreaker
               args:
                 name: imageCircuitBreaker
                 fallbackUri: forward:/fallback/images
 
         - id: image-service
-          uri: http://image-service.rm-photo-app.svc.cluster.local:8080
+          uri: http://user-service.rm-photo-app.svc.cluster.local:8080
           predicates:
             - Path=/api/images/**
 
@@ -84,6 +86,10 @@ spring:
               args:
                 regexp: "/cdn/(?<segment>.*)"
                 replacement: "/${segment}"
+cors:
+  allowed-origins: |
+    http://172.29.5.41:30081,
+    http://localhost:3000
 
 jwt:
   secret: SecretKey
@@ -92,7 +98,7 @@ minio:
   base-url: http://minio-service.databases.svc.cluster.local:9102
 
 frontend:
-  base-url: http://localhost:3000
+  base-url: http://172.29.5.41:30081
 
 eureka:
   client:

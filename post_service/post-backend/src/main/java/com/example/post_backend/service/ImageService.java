@@ -3,6 +3,7 @@ package com.example.post_backend.service;
 import io.minio.*;
 import io.minio.http.Method;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -14,16 +15,18 @@ import java.util.concurrent.TimeUnit;
 @Service
 public class ImageService {
 
-    private final MinioClient minioClient;
+    private final MinioClient minio;
 
     @Value("${minio.bucket}")
     private String bucketName;
 
     @Value("${minio.url}")
-    private String minioUrl;
+    private String internalUrl;
+    @Value("${minio.public-url}")
+    private String publicUrl;
 
-    public ImageService(MinioClient minioClient) {
-        this.minioClient = minioClient;
+    public ImageService(@Qualifier("publicMinio") MinioClient minio) {
+        this.minio = minio;
     }
 
     public Map<String, String> generateUploadUrl(String originalFilename) {
@@ -32,7 +35,7 @@ public class ImageService {
             // originalFilename.substring(originalFilename.lastIndexOf('.'));
             String objectName = UUID.randomUUID() + ".webp";
 
-            String uploadUrl = minioClient.getPresignedObjectUrl(
+            String uploadUrl = minio.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)
                             .bucket(bucketName)
@@ -52,6 +55,7 @@ public class ImageService {
     }
 
     private String buildFileUrl(String objectName) {
-        return minioUrl + "/" + bucketName + "/" + objectName;
+        return publicUrl + "/" + bucketName + "/" + objectName;
+
     }
 }
