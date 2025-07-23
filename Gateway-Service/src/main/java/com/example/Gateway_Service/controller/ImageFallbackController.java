@@ -1,5 +1,6 @@
 package com.example.Gateway_Service.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
@@ -21,16 +22,11 @@ public class ImageFallbackController {
 
     @Value("${minio.base-url}")
     private String minioBaseUrl;
+    @Autowired
+    private WebClient webClient;
 
     private static final MediaType IMAGE_WEBP = MediaType.parseMediaType("image/webp");
     private static final Logger logger = LoggerFactory.getLogger(ImageFallbackController.class);
-    private final WebClient webClient = WebClient.builder()
-            .clientConnector(new ReactorClientHttpConnector(
-                    HttpClient.create()
-                            .responseTimeout(Duration.ofSeconds(10))
-                            .compress(true)))
-            .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(10 * 1024 * 1024)) // 10 MB
-            .build();
 
     @GetMapping
     public Mono<ResponseEntity<ByteArrayResource>> fallback(ServerWebExchange exchange) {
@@ -59,12 +55,12 @@ public class ImageFallbackController {
                                 ByteArrayResource resource = new ByteArrayResource(bytes);
                                 HttpHeaders headers = new HttpHeaders();
                                 headers.setContentType(contentType);
-                                headers.setContentLength(bytes.length); // optional but good
+                                headers.setContentLength(bytes.length);
                                 return new ResponseEntity<>(resource, headers, HttpStatus.OK);
                             });
                 })
                 .onErrorResume(e -> {
-                    logger.warn("[Fallback] Failed: {}", e.getMessage());
+                    logger.warn("[Fallback] Failed to fetch image:: {}", e.getMessage());
                     return Mono.just(ResponseEntity.notFound().build());
                 });
     }

@@ -110,6 +110,19 @@ logging:
     reactor.netty.http.client: DEBUG
     com.example.Gateway_Service: DEBUG
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+
+  zipkin:
+    tracing:
+      endpoint: http://zipkin.zipkin.svc.cluster.local:9411/api/v2/spans
+
+  logging:
+  pattern:
+    level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
 resilience4j:
   circuitbreaker:
     instances:

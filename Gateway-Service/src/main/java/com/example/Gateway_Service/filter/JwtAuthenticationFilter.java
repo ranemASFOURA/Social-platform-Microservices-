@@ -44,13 +44,15 @@ public class JwtAuthenticationFilter implements GlobalFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
+
         String path = request.getURI().getPath();
-        logger.info("===== Gateway RECEIVED: {} {}", request.getMethod(), path);
-        logger.info("Query Params: {}", request.getQueryParams());
-        logger.info("Headers: {}", request.getHeaders());
+        logger.info("[Gateway] Forwarding request to route: {}", path);
+        logger.info(" Gateway RECEIVED: {} {}", request.getMethod(), path);
+        logger.info("[Gateway] Query Params: {}", request.getQueryParams());
+        logger.info("[Gateway] Headers: {}", request.getHeaders());
 
         if (!isSecured(path)) {
-            logger.info("Public endpoint. Skipping JWT validation.");
+            logger.info("[Gateway] Public endpoint detected: {} - Skipping JWT validation", path);
             return chain.filter(exchange);
         }
 
@@ -67,23 +69,28 @@ public class JwtAuthenticationFilter implements GlobalFilter {
                 String userId = claims.getSubject();
                 String role = claims.get("type", String.class);
 
-                logger.info("JWT valid. Extracted userId={}, role={}", userId, role);
+                logger.info("[Gateway] JWT valid. userId={}, role={}", userId, role);
 
                 ServerHttpRequest modifiedRequest = request.mutate()
-                        .header("X-User-Id", userId)
-                        .header("X-User-Role", role)
+                        .headers(httpHeaders -> {
+                            httpHeaders.setAll(request.getHeaders().toSingleValueMap());
+
+                            httpHeaders.add("X-User-Id", userId);
+                            httpHeaders.add("X-User-Role", role);
+                        })
                         .build();
 
-                logger.info("Forwarding request with added headers to downstream service.");
+                logger.info("[Gateway] Forwarding request to downstream with headers X-User-Id={}, X-User-Role={}",
+                        userId, role);
                 return chain.filter(exchange.mutate().request(modifiedRequest).build());
 
             } catch (Exception e) {
-                logger.error(" JWT parsing failed: {}", e.getMessage());
+                logger.error("[Gateway] JWT parsing failed: {}", e.getMessage());
                 return onError(exchange, "Your session has expired. Please log in again.", HttpStatus.UNAUTHORIZED);
             }
 
         } else {
-            logger.warn("Authorization header missing or malformed.");
+            logger.warn("[Gateway] Missing or malformed Authorization header");
         }
 
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);

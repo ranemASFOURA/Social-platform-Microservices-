@@ -7,6 +7,13 @@ import com.example.post_backend.kafka.*;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.Span;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 
 import java.time.Instant;
 import java.util.List;
@@ -16,6 +23,12 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final KafkaProducer kafkaProducer;
+
+    @Autowired
+    private Tracer tracer;
+
+    @Autowired
+    private KafkaTemplate<String, Post> kafkaTemplate;
 
     public PostService(PostRepository postRepository, KafkaProducer kafkaProducer) {
         this.postRepository = postRepository;

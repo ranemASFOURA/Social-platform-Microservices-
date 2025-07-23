@@ -12,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ImageService {
@@ -25,11 +27,14 @@ public class ImageService {
     @Value("${minio.public-url}")
     private String publicUrl;
 
+    private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
+
     public ImageService(@Qualifier("publicMinio") MinioClient minio) {
         this.minio = minio;
     }
 
     public Map<String, String> generateUploadData(String originalFilename) {
+        logger.info("Generating presigned URL for file: {}", originalFilename);
         try {
             // String extension =
             // originalFilename.substring(originalFilename.lastIndexOf('.'));

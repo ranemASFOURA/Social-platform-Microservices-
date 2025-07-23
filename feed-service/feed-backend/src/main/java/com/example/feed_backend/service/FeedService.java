@@ -23,7 +23,9 @@ public class FeedService implements com.example.feed_backend.repository.FeedRepo
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+private RestTemplate restTemplate;
+
 
     private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
 

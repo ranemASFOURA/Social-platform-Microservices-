@@ -13,9 +13,4 @@ public class FollowBackendApplication {
 
 	}
 
-	@Bean
-	public RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
-
 }

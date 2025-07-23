@@ -17,7 +17,9 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private static final int INFLUENCER_THRESHOLD = 2;
-    private final RestTemplate restTemplate;
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Value("${user.service.type.endpoint}")
     private String userTypeEndpoint;
 

@@ -6,7 +6,10 @@ import com.example.user_backend.repository.*;
 import com.example.user_backend.mapper.*;
 import com.example.user_backend.dto.*;
 import jakarta.validation.Valid;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.Span;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +21,9 @@ import org.slf4j.LoggerFactory;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+
+    @Autowired
+    private Tracer tracer;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     private final UserService userService;
@@ -33,10 +39,14 @@ public class UserController {
 
     @PostMapping("/signup")
     public ResponseEntity<UserResponseDTO> createUser(@Valid @RequestBody UserRegisterRequestDTO dto) {
-        // logger.info("Received signup request for email: {}", dto.getEmail());
-        User savedUser = userService.createUser(dto);
-        // logger.info("User created with ID: {}", savedUser.getId());
-        return ResponseEntity.ok(userMapper.toResponse(savedUser));
+        Span span = tracer.nextSpan().name("manual-signup-span").start();
+        try (Tracer.SpanInScope ws = tracer.withSpan(span)) {
+            logger.info("Inside manual signup span");
+            User savedUser = userService.createUser(dto);
+            return ResponseEntity.ok(userMapper.toResponse(savedUser));
+        } finally {
+            span.end();
+        }
     }
 
     @PutMapping("/me")

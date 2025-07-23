@@ -6,6 +6,7 @@ import com.example.search_backend.service.SearchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+import org.springframework.messaging.handler.annotation.Header;
 
 @Component
 public class UserEventListener {
@@ -18,10 +19,11 @@ public class UserEventListener {
         this.objectMapper = new ObjectMapper();
     }
 
-    @KafkaListener(topics = { "user.created", "user.updated" }, groupId = "search-service-group"
-
-    )
-    public void handleUserEvent(String message) {
+    @KafkaListener(topics = { "user.created", "user.updated" }, groupId = "search-service-group")
+    public void handleUserEvent(
+            String message,
+            @Header(name = "X-B3-TraceId", required = false) String traceId,
+            @Header(name = "X-B3-SpanId", required = false) String spanId) {
         try {
             System.out.println("Received raw Kafka message: " + message);
 
