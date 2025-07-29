@@ -1,6 +1,5 @@
 package com.example.user_backend.mapper;
 
-import com.example.user_backend.controller.UserController;
 import com.example.user_backend.dto.*;
 import com.example.user_backend.model.User;
 import org.modelmapper.ModelMapper;

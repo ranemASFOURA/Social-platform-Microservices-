@@ -60,6 +60,10 @@ spring:
           filters:
             - "RewritePath=/cdn/(?<segment>.*), /${segment}"
 
+cors:
+  allowed-origins: |
+    http://localhost:3000
+
 jwt:
   secret: SecretKey
 

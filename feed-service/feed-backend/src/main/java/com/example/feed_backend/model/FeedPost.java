@@ -6,17 +6,20 @@ public class FeedPost {
     private String imageUrl;
     private String caption;
 private String timestamp;
+private String userType;
 
     public FeedPost() {
     }
 
-public FeedPost(String postId, String userId, String imageUrl, String caption, String timestamp) {
-        this.postId = postId;
-        this.userId = userId;
-        this.imageUrl = imageUrl;
-        this.caption = caption;
-        this.timestamp = timestamp;
-    }
+public FeedPost(String postId, String userId, String imageUrl, String caption, String timestamp, String userType) {
+    this.postId = postId;
+    this.userId = userId;
+    this.imageUrl = imageUrl;
+    this.caption = caption;
+    this.timestamp = timestamp;
+    this.userType = userType;
+}
+
 
     // Getters and Setters 
     public String getPostId() {
@@ -58,4 +61,12 @@ public FeedPost(String postId, String userId, String imageUrl, String caption, S
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
+
+    public String getUserType() {
+    return userType;
+}
+
+public void setUserType(String userType) {
+    this.userType = userType;
+}
 }

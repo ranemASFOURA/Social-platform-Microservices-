@@ -5,22 +5,18 @@ import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
-import io.micrometer.tracing.Tracer;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.messaging.Message;
 
 @Component
 public class KafkaProducer {
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
-    private final Tracer tracer;
 
-    public KafkaProducer(KafkaTemplate<String, Object> kafkaTemplate, Tracer tracer) {
+    public KafkaProducer(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
-        this.tracer = tracer;
     }
 
-    public void sendPostCreatedEvent(String postId, String userId, String imageUrl, String caption, String createdAt) {
+    public void sendPostCreatedEvent(String postId, String userId, String imageUrl, String caption, String createdAt,
+            String userType) {
         Map<String, Object> payload = new HashMap<>();
         payload.put("eventType", "post.created");
         payload.put("postId", postId);
@@ -28,13 +24,10 @@ public class KafkaProducer {
         payload.put("imageUrl", imageUrl);
         payload.put("caption", caption);
         payload.put("timestamp", createdAt);
-        Message<Map<String, Object>> message = MessageBuilder.withPayload(payload)
-                .setHeader("X-B3-TraceId", tracer.currentSpan().context().traceId())
-                .setHeader("X-B3-SpanId", tracer.currentSpan().context().spanId())
-                .build();
+        payload.put("userType", userType);
         System.out.println("Sending Kafka post.created event...");
 
-        kafkaTemplate.send("post.created", message);
+        kafkaTemplate.send("post.created", payload);
         System.out.println("Event sent successfully.");
     }
 }

@@ -56,7 +56,6 @@ public class UserService {
         User user = userMapper.toEntity(dto);
         user.setCreatedAt(LocalDateTime.now());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        // user.setPassword("$2a$10$abcdefghijklmnopqrstuv");
 
         User saved = userRepository.save(user);
         logger.info("Saved user with ID: {}", saved.getId());
@@ -106,7 +105,6 @@ public class UserService {
         return updatedUser;
     }
 
-    // UserService.java
     public List<UserEventDTO> getRandomUsers(int limit) {
         return userRepository.findRandomUsers(limit);
     }

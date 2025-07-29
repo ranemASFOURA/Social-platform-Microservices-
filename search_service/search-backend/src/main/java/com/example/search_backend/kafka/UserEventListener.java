@@ -6,7 +6,6 @@ import com.example.search_backend.service.SearchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.springframework.messaging.handler.annotation.Header;
 
 @Component
 public class UserEventListener {
@@ -20,14 +19,9 @@ public class UserEventListener {
     }
 
     @KafkaListener(topics = { "user.created", "user.updated" }, groupId = "search-service-group")
-    public void handleUserEvent(
-            String message,
-            @Header(name = "X-B3-TraceId", required = false) String traceId,
-            @Header(name = "X-B3-SpanId", required = false) String spanId) {
+    public void handleUserEvent(UserEventDTO userDto) {
         try {
-            System.out.println("Received raw Kafka message: " + message);
-
-            UserEventDTO userDto = objectMapper.readValue(message, UserEventDTO.class);
+            System.out.println("📥 Received event: " + userDto.getFirstname());
 
             UserDocument userDoc = new UserDocument(
                     userDto.getId(),
@@ -35,13 +29,15 @@ public class UserEventListener {
                     userDto.getLastname(),
                     userDto.getEmail(),
                     userDto.getImageUrl());
+
             searchService.saveUser(userDoc);
 
-            System.out.println("Indexed user: " + userDoc.getFirstname());
+            System.out.println("✅ Indexed user: " + userDoc.getFirstname());
 
         } catch (Exception e) {
-            System.err.println("Failed to process user event: " + e.getMessage());
+            System.err.println("❌ Failed to process user event: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 }

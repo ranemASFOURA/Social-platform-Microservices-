@@ -80,6 +80,12 @@
 </dependency>
 <!-- Micrometer Tracing with Brave and Zipkin -->
 <dependency>
+  <groupId>io.zipkin.brave</groupId>
+  <artifactId>brave</artifactId>
+  <version>5.16.0</version>
+</dependency>
+
+<dependency>
   <groupId>io.micrometer</groupId>
   <artifactId>micrometer-tracing-bridge-brave</artifactId>
 </dependency>
@@ -87,10 +93,6 @@
 <dependency>
   <groupId>io.zipkin.reporter2</groupId>
   <artifactId>zipkin-reporter-brave</artifactId>
-</dependency>
-<dependency>
-  <groupId>io.micrometer</groupId>
-  <artifactId>micrometer-tracing</artifactId>
 </dependency>
 
 

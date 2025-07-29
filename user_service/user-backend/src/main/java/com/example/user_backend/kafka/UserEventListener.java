@@ -2,8 +2,6 @@ package com.example.user_backend.kafka;
 
 import com.example.user_backend.dto.InfluencerStatusChangedEvent;
 import com.example.user_backend.model.User;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;

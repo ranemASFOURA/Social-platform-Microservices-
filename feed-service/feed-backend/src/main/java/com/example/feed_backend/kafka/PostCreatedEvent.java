@@ -7,6 +7,7 @@ public class PostCreatedEvent {
     private String imageUrl;
     private String caption;
     private String timestamp;
+    private String userType;
 
     public PostCreatedEvent() {
     }
@@ -58,4 +59,13 @@ public class PostCreatedEvent {
     public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
+
+    public String getUserType() {
+    return userType;
+}
+
+public void setUserType(String userType) {
+    this.userType = userType;
+}
+
 }

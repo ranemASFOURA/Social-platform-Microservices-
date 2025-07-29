@@ -11,17 +11,21 @@ import org.springframework.kafka.core.KafkaTemplate;
 
 import java.time.Instant;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class FollowService {
 
     private final FollowRepository followRepository;
-    private static final int INFLUENCER_THRESHOLD = 2;
+    private static final int INFLUENCER_THRESHOLD = 1000;
     @Autowired
     private RestTemplate restTemplate;
 
     @Value("${user.service.type.endpoint}")
     private String userTypeEndpoint;
+
+    private static final Logger logger = LoggerFactory.getLogger(FollowService.class);
 
     @Autowired
     public FollowService(FollowRepository followRepository, RestTemplate restTemplate) {
@@ -78,6 +82,7 @@ public class FollowService {
             InfluencerStatusChangedEvent response = restTemplate.getForObject(url, InfluencerStatusChangedEvent.class);
             return response != null ? response.getType() : "regular";
         } catch (Exception e) {
+            logger.warn("Failed to fetch user type for userId = {}: {}", userId, e.getMessage());
             return "regular";
         }
     }

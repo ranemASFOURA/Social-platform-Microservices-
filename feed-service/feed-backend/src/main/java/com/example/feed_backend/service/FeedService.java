@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,8 +25,7 @@ public class FeedService implements com.example.feed_backend.repository.FeedRepo
 
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    @Autowired
-private RestTemplate restTemplate;
+    private final RestTemplate restTemplate;
 
 
     private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
@@ -36,88 +37,93 @@ private String userServiceUrl;
 private String followServiceUrl;
 
     @Autowired
-    public FeedService(StringRedisTemplate redisTemplate) {
+    public FeedService(StringRedisTemplate redisTemplate, RestTemplate restTemplate) {
         this.redisTemplate = redisTemplate;
+        this.restTemplate = restTemplate;
     }
-
 @Override
 public void distributePostToFollowers(FeedPost post) {
     String userId = post.getUserId();
     logger.info(" Distributing post for userId = {}", userId);
 
-    String userType = getUserType(userId);
-    logger.info(" Detected userType = {}", userType);
+    String userType = post.getUserType();
+logger.info("Using userType from event = {}", userType);
+
 
     try {
         String postJson = objectMapper.writeValueAsString(post);
         logger.debug(" Post JSON: {}", postJson);
 
         if ("influencer".equalsIgnoreCase(userType)) {
-            String influencerFeedKey = "influencer:feed:" + userId;
-            redisTemplate.opsForList().leftPush(influencerFeedKey, postJson);
-            redisTemplate.opsForList().trim(influencerFeedKey, 0, 49);
-            logger.info(" Stored post in influencer feed: {}", influencerFeedKey);
-        } else {
-            String url = followServiceUrl + "/followers/" + userId;
-            logger.info(" Fetching followers from: {}", url);
+            // 1. Store post in influencer feed
+                String influencerFeedKey = "influencer:feed:" + userId;
+                redisTemplate.opsForList().leftPush(influencerFeedKey, postJson);
+                redisTemplate.opsForList().trim(influencerFeedKey, 0, 49);
+                logger.info("Stored post in influencer feed: {}", influencerFeedKey);
 
-            ResponseEntity<Object[]> response = restTemplate.getForEntity(url, Object[].class);
-            Object[] followers = response.getBody();
+                // 2. Save this user as influencer in all_influencers set
+                redisTemplate.opsForSet().add("all_influencers", userId);
 
-            if (followers != null) {
-                for (Object obj : followers) {
-                    String followerId = extractFollowerId(obj);
-                    if (followerId != null) {
-                        String feedKey = "feed:" + followerId;
-                        redisTemplate.opsForList().leftPush(feedKey, postJson);
-                        redisTemplate.opsForList().trim(feedKey, 0, 49);
-                        logger.debug(" Distributed post to follower feed: {}", feedKey);
-                    } else {
-                        logger.warn(" followerId was null");
+
+                // 3. Fetch followers and store them in influencer:followers:userId
+                String url = followServiceUrl + "/followers/" + userId;
+                logger.info("Fetching followers from: {}", url);
+
+                ResponseEntity<Object[]> response = restTemplate.getForEntity(url, Object[].class);
+                Object[] followers = response.getBody();
+
+                if (followers != null) {
+                    String key = "influencer:followers:" + userId;
+                    redisTemplate.delete(key); 
+
+                    for (Object obj : followers) {
+                        String followerId = extractFollowerId(obj);
+                        if (followerId != null) {
+                            redisTemplate.opsForList().rightPush(key, followerId);
+                        }
                     }
+                    logger.info("Stored {} followers for influencer {}", followers.length, userId);
+                } else {
+                    logger.warn("No followers returned from follow-service");
                 }
-                logger.info(" Distributed post to {} followers", followers.length);
+
             } else {
-                logger.warn(" No followers returned from follow-service");
+                // regular user
+                String url = followServiceUrl + "/followers/" + userId;
+                logger.info("Fetching followers from: {}", url);
+
+                ResponseEntity<Object[]> response = restTemplate.getForEntity(url, Object[].class);
+                Object[] followers = response.getBody();
+
+                if (followers != null) {
+                    for (Object obj : followers) {
+                        String followerId = extractFollowerId(obj);
+                        if (followerId != null) {
+                            String feedKey = "feed:" + followerId;
+                            redisTemplate.opsForList().leftPush(feedKey, postJson);
+                            redisTemplate.opsForList().trim(feedKey, 0, 49);
+                            logger.debug("Distributed post to follower feed: {}", feedKey);
+                        }
+                    }
+                    logger.info("Distributed post to {} followers", followers.length);
+                } else {
+                    logger.warn("No followers returned from follow-service");
+                }
             }
+
+        } catch (Exception e) {
+            logger.error("Failed to distribute post: {}", e.getMessage(), e);
         }
-
-    } catch (Exception e) {
-        logger.error(" Failed to distribute post: {}", e.getMessage(), e);
     }
-}
 
-
-
-    private String getUserType(String userId) {
-    try {
-        String url = userServiceUrl + "/" + userId + "/type";
-        logger.info(" Calling user-service for type: {}", url);
-
-        ResponseEntity<UserTypeResponse> response = restTemplate.getForEntity(url, UserTypeResponse.class);
-        if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-            logger.info(" User type fetched: {}", response.getBody().getType());
-            return response.getBody().getType();
-        } else {
-            logger.warn(" Failed to get valid user type response");
+    private String extractFollowerId(Object obj) {
+        try {
+            String id = objectMapper.convertValue(obj, Map.class).get("followerId").toString();
+            logger.debug("Extracted followerId: {}", id);
+            return id;
+        } catch (Exception e) {
+            logger.error("Failed to extract followerId: {}", e.getMessage(), e);
+            return null;
         }
-    } catch (Exception e) {
-        logger.error(" Failed to get user type: {}", e.getMessage(), e);
     }
-    return "regular"; // fallback
-}
-
-
-private String extractFollowerId(Object obj) {
-    try {
-        String id = objectMapper.convertValue(obj, java.util.Map.class).get("followerId").toString();
-        logger.debug(" Extracted followerId: {}", id);
-        return id;
-    } catch (Exception e) {
-        logger.error(" Failed to extract followerId: {}", e.getMessage(), e);
-        return null;
-    }
-}
-
-
-}
+} 

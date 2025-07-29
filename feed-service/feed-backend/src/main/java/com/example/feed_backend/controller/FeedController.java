@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Set;
+
 
 @RestController
 @RequestMapping("/api/feed")
@@ -24,6 +26,10 @@ public class FeedController {
 
     @Autowired
     private StringRedisTemplate redisTemplate;
+
+    @Autowired
+private RestTemplate restTemplate;
+
     @Value("${user.service.url}")
 private String userServiceUrl;
 
@@ -33,7 +39,7 @@ private String followServiceUrl;
 
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final RestTemplate restTemplate = new RestTemplate();
+    
 
     @GetMapping
 public List<FeedPost> getFeed(@RequestHeader("X-User-Id") String userId,
@@ -55,57 +61,38 @@ public List<FeedPost> getFeed(@RequestHeader("X-User-Id") String userId,
             }
         }
 
-        // 2. Fetch followed users
-        String followUrl = followServiceUrl + "/following/" + userId;
-        ResponseEntity<Object[]> response = restTemplate.getForEntity(followUrl, Object[].class);
-        Object[] following = response.getBody();
-
-        if (following != null) {
-            for (Object obj : following) {
-                try {
-                    Map<?, ?> map = objectMapper.convertValue(obj, Map.class);
-                    String followedId = map.get("followingId").toString();
-
-                    // 3. Fetch user type from user-service
-                   String userTypeUrl = userServiceUrl + "/" + followedId + "/type";
-
-                    ResponseEntity<Map> userTypeResp = restTemplate.getForEntity(userTypeUrl, Map.class);
-
-                    if (userTypeResp.getStatusCode().is2xxSuccessful()) {
-                        String type = userTypeResp.getBody().get("type").toString();
-                        if ("influencer".equalsIgnoreCase(type)) {
-    List<String> inflPosts = redisTemplate.opsForList().range("influencer:feed:" + followedId, 0, preloadLimit - 1);
-
-                            if (inflPosts != null) {
-                                for (String json : inflPosts) {
-                                    try {
-                                        timeline.add(objectMapper.readValue(json, FeedPost.class));
-                                    } catch (Exception e) {
-                                        System.err.println("Failed to parse influencer post: " + e.getMessage());
-                                    }
-                                }
+        // 2. Check influencer follow keys
+        Set<String> keys = redisTemplate.keys("influencer:followers:*");
+        if (keys != null) {
+            for (String key : keys) {
+                List<String> followers = redisTemplate.opsForList().range(key, 0, -1);
+                if (followers != null && followers.contains(userId)) {
+                    String influencerId = key.replace("influencer:followers:", "");
+                    List<String> inflPosts = redisTemplate.opsForList().range("influencer:feed:" + influencerId, 0, preloadLimit - 1);
+                    if (inflPosts != null) {
+                        for (String json : inflPosts) {
+                            try {
+                                timeline.add(objectMapper.readValue(json, FeedPost.class));
+                            } catch (Exception e) {
+                                System.err.println("Failed to parse influencer post: " + e.getMessage());
                             }
                         }
                     }
-
-                } catch (Exception e) {
-                    System.err.println("Error processing followed user: " + e.getMessage());
                 }
             }
         }
+        /// 3. Sort timeline by timestamp (descending)
+        timeline.sort((a, b) -> Instant.parse(b.getTimestamp()).compareTo(Instant.parse(a.getTimestamp())));
 
-        // 5. Sort timeline by timestamp (descending)
-        //timeline.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
-        timeline.sort((a, b) -> {
-    return Instant.parse(b.getTimestamp()).compareTo(Instant.parse(a.getTimestamp()));
-});
-    int start = page * size;
-    int end = Math.min(start + size, timeline.size());
+        // 4. Pagination
+        int start = page * size;
+        int end = Math.min(start + size, timeline.size());
 
-    if (start >= timeline.size()) {
-        return List.of(); 
+        if (start >= timeline.size()) {
+            return List.of();
+        }
+
+        return timeline.subList(start, end);
     }
+}
 
-    return timeline.subList(start, end);
-}
-}
