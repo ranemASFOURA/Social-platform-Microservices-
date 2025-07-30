@@ -14,6 +14,9 @@ photo-sharing-platform/
 ├── follow_service/ # Manages follow/unfollow relations between users
 ├── Gateway-Service/ # API Gateway that routes requests and handles security
 ├── infrastructure/ # Contains docker-compose setups for Kafka, Elasticsearch, MinIO, etc.
+├── post-service/ # for post images
+├── user-service/ # for management user(signup-edit profile)
+
 
 ```
 
