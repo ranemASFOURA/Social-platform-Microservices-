@@ -65,20 +65,6 @@ public class UserController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    /*
-     * @GetMapping("/search")
-     * public ResponseEntity<List<UserResponseDTO>> searchUsers(@RequestParam String
-     * firstname) {
-     * logger.info("Received search request for firstname: {}", firstname);
-     * List<User> users =
-     * userRepository.findByFirstnameContainingIgnoreCase(firstname);
-     * List<UserResponseDTO> response = users.stream()
-     * .map(userMapper::toResponse)
-     * .toList();
-     * return ResponseEntity.ok(response);
-     * }
-     */
-
     @GetMapping("/{id}")
     public ResponseEntity<UserResponseDTO> getUserById(@PathVariable String id) {
         return userRepository.findById(id)

@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
-
 import java.time.Instant;
 import java.util.Map;
 
@@ -20,6 +19,9 @@ public class PostService {
     private final PostRepository postRepository;
     private final KafkaProducer kafkaProducer;
     private final RestTemplate restTemplate;
+
+    @Value("${user.service.url}")
+    private String userServiceUrl;
 
     public PostService(PostRepository postRepository, KafkaProducer kafkaProducer, RestTemplate restTemplate) {
         this.postRepository = postRepository;
@@ -38,7 +40,7 @@ public class PostService {
         String userType = "regular"; // fallback
 
         try {
-            String url = "http://localhost:8080/api/users/" + userId + "/type";
+            String url = userServiceUrl + "/" + userId + "/type";
             ResponseEntity<Map> response = restTemplate.getForEntity(url, Map.class);
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 userType = response.getBody().get("type").toString();
