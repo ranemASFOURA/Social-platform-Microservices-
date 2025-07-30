@@ -1,6 +1,3 @@
----
-
-```markdown
 # 📸 Photo Sharing Platform
 
 A distributed, microservices-based social platform that allows users to register, authenticate, follow others, upload images, and view personalized feeds. Designed for scalability and performance using Spring Boot, React, Kafka, Redis, MinIO, and Kubernetes.
@@ -12,11 +9,11 @@ A distributed, microservices-based social platform that allows users to register
 ```
 
 photo-sharing-platform/
-├── auth-service/           # Handles user authentication and JWT issuance
-├── feed-service/           # Manages timeline generation and feed distribution
-├── follow\_service/         # Manages follow/unfollow relations between users
-├── Gateway-Service/        # API Gateway that routes requests and handles security
-├── infrastructure/         # Contains docker-compose setups for Kafka, Elasticsearch, MinIO, etc.
+├── auth-service/ # Handles user authentication and JWT issuance
+├── feed-service/ # Manages timeline generation and feed distribution
+├── follow_service/ # Manages follow/unfollow relations between users
+├── Gateway-Service/ # API Gateway that routes requests and handles security
+├── infrastructure/ # Contains docker-compose setups for Kafka, Elasticsearch, MinIO, etc.
 
 ```
 
@@ -65,7 +62,9 @@ photo-sharing-platform/
    ./start-all.sh
    ```
 
-````
+```
+
+```
 
 2. **Build all services**
 
@@ -103,18 +102,13 @@ photo-sharing-platform/
 | API Gateway   | Spring Cloud Gateway + Filters             |
 | DevOps/Infra  | Docker, Docker Compose, Kubernetes         |
 
-
 ---
 
 ## 🧠 Notes
 
-* All microservices follow a clean hexagonal structure (controller → service → repository)
-* Kafka topics used: `post.created`, `user.updated....`
-* Feed service supports real-time and scheduled updates
-* MinIO buckets: `user-images`, `post-images`
+- All microservices follow a clean hexagonal structure (controller → service → repository)
+- Kafka topics used: `post.created`, `user.updated....`
+- Feed service supports real-time and scheduled updates
+- MinIO buckets: `user-images`, `post-images`
 
 ---
-```
-
----
-````
