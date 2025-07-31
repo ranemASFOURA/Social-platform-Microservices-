@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: search-service
+  namespace: rm-photo-app
+  labels:
+    app: search-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: search-service
+  template:
+    metadata:
+      labels:
+        app: search-service
+    spec:
+      containers:
+        - name: search-service
+          image: 172.29.3.41:5000/search-service:1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+            - name: JAVA_TOOL_OPTIONS
+              value: >-
+                -Dspring.zipkin.sender.type=webclient
+                -Djdk.httpclient.allowRestrictedHeaders=connection
+                -Dreactor.netty.http.http2=false
+          #resources:
+            #requests:
+              #cpu: "300m"
+              #memory: "200Mi"
+            #limits:
+              #cpu: "600m"
+              #memory: "512Mi"
+         

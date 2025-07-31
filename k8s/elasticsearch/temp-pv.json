@@ -1,0 +1,44 @@
+{
+  "apiVersion": "v1",
+  "kind": "PersistentVolume",
+  "metadata": {
+    "annotations": {
+      "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"kind\":\"PersistentVolume\",\"metadata\":{\"annotations\":{},\"name\":\"esdata-pv\"},\"spec\":{\"accessModes\":[\"ReadWriteOnce\"],\"capacity\":{\"storage\":\"1Gi\"},\"hostPath\":{\"path\":\"/mnt/data/esdata\"},\"persistentVolumeReclaimPolicy\":\"Retain\",\"storageClassName\":\"manual\"}}\n",
+      "pv.kubernetes.io/bound-by-controller": "yes"
+    },
+    "creationTimestamp": "2025-07-20T19:55:05Z",
+    "deletionGracePeriodSeconds": 0,
+    "deletionTimestamp": "2025-07-20T19:57:05Z",
+    "finalizers": null,
+    "name": "esdata-pv",
+    "resourceVersion": "1460009",
+    "uid": "e5cd7cc8-3c31-4642-b93f-b9476d245e9a"
+  },
+  "spec": {
+    "accessModes": [
+      "ReadWriteOnce"
+    ],
+    "capacity": {
+      "storage": "1Gi"
+    },
+    "claimRef": {
+      "apiVersion": "v1",
+      "kind": "PersistentVolumeClaim",
+      "name": "esdata",
+      "namespace": "databases",
+      "resourceVersion": "1459743",
+      "uid": "9af9ea95-db28-428f-8319-76f96c5898ef"
+    },
+    "hostPath": {
+      "path": "/mnt/data/esdata",
+      "type": ""
+    },
+    "persistentVolumeReclaimPolicy": "Retain",
+    "storageClassName": "manual",
+    "volumeMode": "Filesystem"
+  },
+  "status": {
+    "lastPhaseTransitionTime": "2025-07-20T19:55:05Z",
+    "phase": "Bound"
+  }
+}

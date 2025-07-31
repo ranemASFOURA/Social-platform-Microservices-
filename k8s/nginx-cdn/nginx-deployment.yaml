@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-cdn
+  namespace: databases
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-cdn
+  template:
+    metadata:
+      labels:
+        app: nginx-cdn
+    spec:
+      containers:
+        - name: nginx
+          image: 172.29.3.41:5000/nginx-cdn:0.1
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+            - name: cache-volume
+              mountPath: /var/cache/nginx
+      volumes:
+        - name: config-volume
+          configMap:
+            name: nginx-cdn-config
+        - name: cache-volume
+          emptyDir: {}

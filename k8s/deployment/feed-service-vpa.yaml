@@ -1,0 +1,33 @@
+apiVersion: autoscaling.k8s.io/v1
+kind: VerticalPodAutoscaler
+metadata:
+  name: feed-service-vpa
+  namespace: rm-photo-app
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: feed-service
+  updatePolicy:
+    updateMode: "Auto"                 
+  resourcePolicy:
+    containerPolicies:
+      - containerName: "autocomplete-service"   
+        controlledValues: "RequestsOnly"        
+        minAllowed:
+          cpu: "200m"
+          memory: "256Mi"
+        maxAllowed:
+          cpu: "700m"
+          memory: "1Gi"
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: feed-pdb
+  namespace: rm-photo-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: autocomplete-service

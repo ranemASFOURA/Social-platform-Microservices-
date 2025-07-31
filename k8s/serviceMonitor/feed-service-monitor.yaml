@@ -1,0 +1,18 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: feed-service-monitor
+  namespace:  rm-photo-app
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: feed-service
+  namespaceSelector:
+    matchNames:
+      - rm-photo-app
+  endpoints:
+    - port: http
+      path: /actuator/prometheus
+      interval: 15s

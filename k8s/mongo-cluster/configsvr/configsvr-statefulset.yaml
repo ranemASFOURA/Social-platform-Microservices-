@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: configsvr
+  namespace: databases
+spec:
+  serviceName: configsvr-service
+  replicas: 1  
+  selector:
+    matchLabels:
+      app: configsvr
+  template:
+    metadata:
+      labels:
+        app: configsvr
+    spec:
+      containers:
+        - name: mongod
+          image: 172.29.3.41:5000/mongo:6
+          command:
+            - mongod
+            - "--configsvr"
+            - "--replSet"
+            - "configReplSet"
+            - "--bind_ip_all"
+            - "--port"
+            - "27017"
+            - "--dbpath"
+            - "/data/db"
+          ports:
+            - containerPort: 27017
+          volumeMounts:
+            - name: configsvr-storage
+              mountPath: /data/db
+  volumeClaimTemplates:
+    - metadata:
+        name: configsvr-storage
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        storageClassName: manual
+        resources:
+          requests:
+            storage: 1Gi
