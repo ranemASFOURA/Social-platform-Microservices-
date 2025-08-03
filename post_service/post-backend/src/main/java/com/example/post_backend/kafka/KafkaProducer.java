@@ -3,6 +3,7 @@ package com.example.post_backend.kafka;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,5 +30,14 @@ public class KafkaProducer {
 
         kafkaTemplate.send("post.created", payload);
         System.out.println("Event sent successfully.");
+    }
+
+    public void sendPostDeletedEvent(String postId, String userId) {
+        Map<String, Object> payload = new HashMap<>();
+        payload.put("eventType", "post.deleted");
+        payload.put("postId", postId);
+        payload.put("userId", userId);
+        payload.put("timestamp", Instant.now().toString());
+        kafkaTemplate.send("post.deleted", payload);
     }
 }

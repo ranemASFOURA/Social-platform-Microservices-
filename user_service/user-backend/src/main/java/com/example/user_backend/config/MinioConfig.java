@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// Marks this class as a source of bean definitions for Spring context
 @Configuration
 public class MinioConfig {
 
@@ -17,7 +18,7 @@ public class MinioConfig {
 
     // @Value("${minio.secretKey}")
     // private String secretKey;
-
+    // Define a MinIO client bean used internally inside the cluster
     @Bean("internalMinio")
     public MinioClient internal(@Value("${minio.url}") String url,
             @Value("${minio.accessKey}") String ak,

@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import java.util.Map;
+import java.util.Set;
 
 
 import java.util.ArrayList;
@@ -31,25 +33,23 @@ public class FeedService implements com.example.feed_backend.repository.FeedRepo
     private static final Logger logger = LoggerFactory.getLogger(FeedService.class);
 
     @Value("${user.service.url}")
-private String userServiceUrl;
+    private String userServiceUrl;
 
-@Value("${follow.service.url}")
-private String followServiceUrl;
+    @Value("${follow.service.url}")
+    private String followServiceUrl;
 
     @Autowired
     public FeedService(StringRedisTemplate redisTemplate, RestTemplate restTemplate) {
         this.redisTemplate = redisTemplate;
         this.restTemplate = restTemplate;
     }
-@Override
-public void distributePostToFollowers(FeedPost post) {
+    @Override
+    public void distributePostToFollowers(FeedPost post) {
     String userId = post.getUserId();
     logger.info(" Distributing post for userId = {}", userId);
 
     String userType = post.getUserType();
-logger.info("Using userType from event = {}", userType);
-
-
+    logger.info("Using userType from event = {}", userType);
     try {
         String postJson = objectMapper.writeValueAsString(post);
         logger.debug(" Post JSON: {}", postJson);
@@ -126,4 +126,38 @@ logger.info("Using userType from event = {}", userType);
             return null;
         }
     }
-} 
+
+    public void removePostFromFeeds(String postId, String userId) {
+    try {
+        System.out.println(" Removing post " + postId + " from all feeds...");
+
+        Set<String> feedKeys = redisTemplate.keys("feed:*");
+        if (feedKeys != null) {
+            for (String key : feedKeys) {
+                List<String> posts = redisTemplate.opsForList().range(key, 0, -1);
+                if (posts != null) {
+                    for (String postJson : posts) {
+                        if (postJson.contains(postId)) {
+                            redisTemplate.opsForList().remove(key, 1, postJson);
+                        }
+                    }
+                }
+            }
+        }
+
+        String influencerKey = "influencer:feed:" + userId;
+        List<String> influencerPosts = redisTemplate.opsForList().range(influencerKey, 0, -1);
+        if (influencerPosts != null) {
+            for (String postJson : influencerPosts) {
+                if (postJson.contains(postId)) {
+                    redisTemplate.opsForList().remove(influencerKey, 1, postJson);
+                }
+            }
+        }
+
+        System.out.println("Post removed from all feeds.");
+    } catch (Exception e) {
+        System.err.println(" Failed to remove post from feeds: " + e.getMessage());
+    }
+}
+}

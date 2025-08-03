@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.PageRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -19,7 +20,7 @@ public class PostController {
     }
 
     @PostMapping
-    public Post createPost(@RequestBody Post post, @RequestHeader("X-User-Id") String userId) {
+    public Post createPost(@Valid @RequestBody Post post, @RequestHeader("X-User-Id") String userId) {
         return postService.createPost(userId, post.getCaption(), post.getImageUrl());
     }
 
@@ -39,4 +40,11 @@ public class PostController {
         Pageable pageable = PageRequest.of(page, size);
         return postService.getUserPosts(userId, pageable);
     }
+
+    @DeleteMapping("/{postId}")
+    public void deletePost(@PathVariable Long postId,
+            @RequestHeader("X-User-Id") String userId) {
+        postService.deletePost(postId, userId);
+    }
+
 }

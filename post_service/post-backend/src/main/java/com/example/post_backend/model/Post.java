@@ -2,6 +2,8 @@ package com.example.post_backend.model;
 
 import jakarta.persistence.*;
 import java.time.Instant;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 @Entity
 @Table(name = "posts")
@@ -13,7 +15,9 @@ public class Post {
 
     private String userId;
     private String caption;
+    @NotBlank
     private String imageUrl;
+    @Column(columnDefinition = "TIMESTAMP")
     private Instant createdAt;
 
     public Post() {

@@ -21,7 +21,7 @@ public class ImageHeaderInjectionFilter implements GatewayFilterFactory<ImageHea
             // 2. /user-images/xxx.webp
             String imagePath = fullPath.replaceFirst("/api/image-proxy", "");
 
-            // 3. hearder
+            // 3. header
             ServerHttpRequest modifiedRequest = exchange.getRequest()
                     .mutate()
                     .header("X-Original-Image-Path", imagePath)

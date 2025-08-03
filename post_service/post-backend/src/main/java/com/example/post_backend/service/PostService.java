@@ -19,14 +19,19 @@ public class PostService {
     private final PostRepository postRepository;
     private final KafkaProducer kafkaProducer;
     private final RestTemplate restTemplate;
+    private final ImageService imageService;
 
     @Value("${user.service.url}")
     private String userServiceUrl;
 
-    public PostService(PostRepository postRepository, KafkaProducer kafkaProducer, RestTemplate restTemplate) {
+    public PostService(PostRepository postRepository,
+            KafkaProducer kafkaProducer,
+            RestTemplate restTemplate,
+            ImageService imageService) {
         this.postRepository = postRepository;
         this.kafkaProducer = kafkaProducer;
         this.restTemplate = restTemplate;
+        this.imageService = imageService;
     }
 
     @Transactional
@@ -57,8 +62,7 @@ public class PostService {
                 saved.getImageUrl(),
                 saved.getCaption(),
                 saved.getCreatedAt().toString(),
-                userType // ✅ جديد
-        );
+                userType);
 
         return saved;
     }
@@ -66,4 +70,21 @@ public class PostService {
     public Page<Post> getUserPosts(String userId, Pageable pageable) {
         return postRepository.findByUserId(userId, pageable);
     }
+
+    @Transactional
+    public void deletePost(Long postId, String requesterUserId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!post.getUserId().equals(requesterUserId)) {
+            throw new RuntimeException("Unauthorized to delete this post");
+        }
+
+        imageService.deleteImageByUrl(post.getImageUrl());
+
+        postRepository.deleteById(postId);
+
+        kafkaProducer.sendPostDeletedEvent(postId.toString(), requesterUserId);
+    }
+
 }

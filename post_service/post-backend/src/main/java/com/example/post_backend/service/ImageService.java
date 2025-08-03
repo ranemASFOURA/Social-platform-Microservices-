@@ -58,4 +58,23 @@ public class ImageService {
         return publicUrl + "/" + bucketName + "/" + objectName;
 
     }
+
+    public void deleteImageByUrl(String imageUrl) {
+        try {
+            String prefix = publicUrl + "/" + bucketName + "/";
+            if (imageUrl.startsWith(prefix)) {
+                String objectName = imageUrl.substring(prefix.length());
+                minio.removeObject(
+                        RemoveObjectArgs.builder()
+                                .bucket(bucketName)
+                                .object(objectName)
+                                .build());
+            } else {
+                System.err.println("Invalid image URL: does not match expected pattern");
+            }
+        } catch (Exception e) {
+            System.err.println("Error deleting image from MinIO: " + e.getMessage());
+        }
+    }
+
 }

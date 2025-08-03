@@ -32,10 +32,10 @@ public class UserEventListener {
 
             searchService.saveUser(userDoc);
 
-            System.out.println("✅ Indexed user: " + userDoc.getFirstname());
+            System.out.println("Indexed user: " + userDoc.getFirstname());
 
         } catch (Exception e) {
-            System.err.println("❌ Failed to process user event: " + e.getMessage());
+            System.err.println("Failed to process user event: " + e.getMessage());
             e.printStackTrace();
         }
     }

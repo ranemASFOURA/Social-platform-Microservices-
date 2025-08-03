@@ -11,10 +11,6 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.server.ServerWebExchange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.client.reactive.ReactorClientHttpConnector;
-import reactor.netty.http.client.HttpClient;
-import reactor.netty.resources.ConnectionProvider;
-import java.time.Duration;
 
 @RestController
 @RequestMapping("/fallback/images")

@@ -33,13 +33,15 @@ public class ImageService {
         this.minio = minio;
     }
 
+    // Generates presigned PUT URL to upload a file, and a public URL to access it
+    // later
     public Map<String, String> generateUploadData(String originalFilename) {
         logger.info("Generating presigned URL for file: {}", originalFilename);
         try {
             // String extension =
             // originalFilename.substring(originalFilename.lastIndexOf('.'));
             String objectName = UUID.randomUUID() + ".webp";
-
+            // Create a temporary upload URL valid for 10 minutes
             String uploadUrl = minio.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.PUT)

@@ -16,7 +16,7 @@ public class UserRegisterRequestDTO {
 
     @Email
     @NotBlank
-    @Indexed(unique = true)
+    // @Indexed(unique = true)
     private String email;
 
     @NotBlank
