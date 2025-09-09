@@ -99,7 +99,7 @@ photo-sharing-platform/
 | ------------- | ------------------------------------------ |
 | Backend       | Java 17, Spring Boot, Spring Cloud Gateway |
 | Messaging     | Apache Kafka                               |
-| Storage       | Redis, MongoDB, MinIO                      |
+| Storage       | Redis, MongoDB, MinIO, mysql               |
 | Search        | Elasticsearch                              |
 | Image Hosting | MinIO with pre-signed URLs                 |
 | API Gateway   | Spring Cloud Gateway + Filters             |
